@@ -1,5 +1,6 @@
 import json
-import pymysql
+
+from utils import db_connection
 
 
 def lambda_handler(event, context):
@@ -12,7 +13,7 @@ def lambda_handler(event, context):
             'body': json.dumps('Faltan datos para el login.')
         }
 
-    connection = connect_to_db()
+    connection = db_connection()
     if connection is None:
         return {
             'statusCode': 500,
