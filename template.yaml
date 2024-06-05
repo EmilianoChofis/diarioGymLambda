@@ -16,7 +16,7 @@ Resources:
     Type: AWS::IAM::Role
     Properties:
       AssumeRolePolicyDocument:
-        Version: '2024-06-04'
+        Version: '2012-10-17'
         Statement:
           - Effect: Allow
             Principal:
@@ -25,7 +25,7 @@ Resources:
       Policies:
         - PolicyName: LambdaBasicExecution
           PolicyDocument:
-            Version: '2024-06-04'
+            Version: '2012-10-17'
             Statement:
               - Effect: Allow
                 Action:
@@ -127,7 +127,7 @@ Resources:
         Login:
           Type: Api
           Properties:
-            RestApiId: !Ref UserApi
+            RestApiId: !Ref AuthApi
             Path: /login
             Method: post
 
@@ -144,7 +144,7 @@ Resources:
         Register:
           Type: Api
           Properties:
-            RestApiId: !Ref UserApi
+            RestApiId: !Ref AuthApi
             Path: /register
             Method: post
 
