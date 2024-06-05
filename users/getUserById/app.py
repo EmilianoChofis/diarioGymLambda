@@ -6,20 +6,20 @@ from utils import db_connection
 # import requests
 
 
-def lambda_handler(event, context):
+def lambda_handler(event, __):
 
     """
     :param event:
-    :param context:
+    :param __:
     :return:
     """
-    id = event['id']
+    user_id = event['id']
     connection = db_connection()
 
     try:
         with connection.cursor() as cursor:
-            sql = f"select * from users WHERE id = {id}"
-            cursor.execute(sql, (id))
+            sql = "SELECT username, email, role_id, enable FROM users WHERE id = %s"
+            cursor.execute(sql, (user_id,))
             result = cursor.fetchone()
             connection.commit()
             if result:
