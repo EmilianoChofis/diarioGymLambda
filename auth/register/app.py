@@ -36,7 +36,7 @@ def lambda_handler(event, context):
                 }
 
             # Insertar nuevo usuario
-            sql = "INSERT INTO users (username, password, email, role) VALUES (%s, %s, %s, %s)"
+            sql = "INSERT INTO users (username, password, email, role_id) VALUES (%s, %s, %s, %s)"
             cursor.execute(sql, (username, password, email, role))
             connection.commit()
 
