@@ -6,11 +6,11 @@ from utils import db_connection
 # import requests
 
 
-def lambda_handler(event, context):
+def lambda_handler(event, __):
 
     """
     :param event:
-    :param context:
+    :param __:
     :return:
     """
     id = event['id']
@@ -18,8 +18,8 @@ def lambda_handler(event, context):
 
     try:
         with connection.cursor() as cursor:
-            sql = f"UPDATE users SET expire_at = DATE_ADD(CURRENT_TIMESTAMP, INTERVAL 30 DAY), enable = '1' WHERE id = {id}";
-            cursor.execute(sql, (id))
+            sql = "UPDATE users SET expire_at = DATE_ADD(CURRENT_TIMESTAMP, INTERVAL 30 DAY), enable = '1' WHERE id = %s"
+            cursor.execute(sql, (id,))
             connection.commit()
             response = {
                 'statusCode': 200,
