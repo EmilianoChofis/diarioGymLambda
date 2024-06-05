@@ -1,9 +1,11 @@
 import json
 
+import pymysql
+
 from utils import db_connection
 
 
-def lambda_handler(event, context):
+def lambda_handler(event, __):
     username = event.get('email')
     password = event.get('password')
 
@@ -22,7 +24,7 @@ def lambda_handler(event, context):
 
     try:
         with connection.cursor() as cursor:
-            sql = "SELECT * FROM users WHERE username = %s AND password = %s"
+            sql = "SELECT * FROM users WHERE email = %s AND password = %s"
             cursor.execute(sql, (username, password))
             result = cursor.fetchone()
 

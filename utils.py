@@ -1,11 +1,19 @@
 import pymysql
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 
 def db_connection():
-    connection = pymysql.connect(host='databaseforlambdas.czssy4oigfcr.us-east-1.rds.amazonaws.com',
-                                 user='admin',
-                                 password='admin123',
-                                 database='chomfit',
-                                 charset='utf8mb4',
-                                 cursorclass=pymysql.cursors.DictCursor)
-    return connection
+    try:
+        connection = pymysql.connect(host=os.getenv('HOST'),
+                                     user=os.getenv('USER'),
+                                     password=os.getenv('PASSWORD'),
+                                     database=os.getenv('DATABASE'),
+                                     charset=os.getenv('CHARSET'),
+                                     cursorclass=pymysql.cursors.DictCursor)
+        return connection
+    except pymysql.MySQLError as e:
+        print(f"ERROR: {e}")
+        return None

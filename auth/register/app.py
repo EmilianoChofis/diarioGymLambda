@@ -1,5 +1,7 @@
 import json
 
+import pymysql
+
 from utils import db_connection
 
 
