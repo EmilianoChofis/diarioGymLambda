@@ -53,6 +53,8 @@ Temporary Items
 .idea/dictionaries
 
 # Sensitive or high-churn files:
+.idea/
+.aws-sam/
 .idea/**/dataSources/
 .idea/**/dataSources.ids
 .idea/**/dataSources.xml

@@ -8,34 +8,184 @@ Description: >
 # More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
 Globals:
   Function:
-    Timeout: 3
+    Timeout: 120
+    MemorySize: 256
 
 Resources:
-  HelloWorldFunction:
-    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+  LambdaExecutionRole:
+    Type: AWS::IAM::Role
     Properties:
-      CodeUri: hello_world/
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: LambdaBasicExecution
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource: arn:aws:logs:*:*:*
+
+  UserApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      Name: UserApi
+      StageName: Prod
+
+  AuthApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      Name: AuthApi
+      StageName: Prod
+
+  GetUserByIdFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: users/getUserById/
       Handler: app.lambda_handler
       Runtime: python3.12
+      Role: !GetAtt LambdaExecutionRole.Arn
       Architectures:
         - x86_64
       Events:
-        HelloWorld:
-          Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+        GetUserById:
+          Type: Api
           Properties:
-            Path: /hello
+            RestApiId: !Ref UserApi
+            Path: /get_user_by_id/{id}
             Method: get
 
+  UpdateUserDataFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: users/updateUserData/
+      Handler: app.lambda_handler
+      Runtime: python3.12
+      Role: !GetAtt LambdaExecutionRole.Arn
+      Architectures:
+        - x86_64
+      Events:
+        UpdateUserData:
+          Type: Api
+          Properties:
+            RestApiId: !Ref UserApi
+            Path: /update_user
+            Method: patch
+
+  DisableUserFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: users/disableUser/
+      Handler: app.lambda_handler
+      Runtime: python3.12
+      Role: !GetAtt LambdaExecutionRole.Arn
+      Architectures:
+        - x86_64
+      Events:
+        DisableUser:
+          Type: Api
+          Properties:
+            RestApiId: !Ref UserApi
+            Path: /disable_user/{id}
+            Method: patch
+
+  EnableUserFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: users/enableUser/
+      Handler: app.lambda_handler
+      Runtime: python3.12
+      Role: !GetAtt LambdaExecutionRole.Arn
+      Architectures:
+        - x86_64
+      Events:
+        EnableUser:
+          Type: Api
+          Properties:
+            RestApiId: !Ref UserApi
+            Path: /enable_user/{id}
+            Method: patch
+
+  LoginFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: auth/login/
+      Handler: app.lambda_handler
+      Runtime: python3.12
+      Role: !GetAtt LambdaExecutionRole.Arn
+      Architectures:
+        - x86_64
+      Events:
+        Login:
+          Type: Api
+          Properties:
+            RestApiId: !Ref AuthApi
+            Path: /login
+            Method: post
+
+  RegisterFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: auth/register/
+      Handler: app.lambda_handler
+      Runtime: python3.12
+      Role: !GetAtt LambdaExecutionRole.Arn
+      Architectures:
+        - x86_64
+      Events:
+        Register:
+          Type: Api
+          Properties:
+            RestApiId: !Ref AuthApi
+            Path: /register
+            Method: post
+
+
 Outputs:
-  # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
-  # Find out more about other implicit resources you can reference within SAM
-  # https://github.com/awslabs/serverless-application-model/blob/master/docs/internals/generated_resources.rst#api
-  HelloWorldApi:
-    Description: "API Gateway endpoint URL for Prod stage for Hello World function"
-    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/hello/"
-  HelloWorldFunction:
-    Description: "Hello World Lambda Function ARN"
-    Value: !GetAtt HelloWorldFunction.Arn
-  HelloWorldFunctionIamRole:
-    Description: "Implicit IAM Role created for Hello World function"
-    Value: !GetAtt HelloWorldFunctionRole.Arn
+  GetUserByIdApiUrl:
+    Description: "API Gateway endpoint URL with path get_user_by_id/{id}"
+    Value: !Sub "https://${UserApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/get_user_by_id/{id}"
+  GetUserByIdFunctionArn:
+    Description: "Get data user Lambda Function ARN"
+    Value: !GetAtt GetUserByIdFunction.Arn
+  UpdateUserDataApiUrl:
+    Description: "API Gateway endpoint URL with path update_user"
+    Value: !Sub "https://${UserApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/update_user"
+  UpdateUserDataFunctionArn:
+    Description: "Update user data Lambda Function ARN"
+    Value: !GetAtt UpdateUserDataFunction.Arn
+  DisableUserApiUrl:
+    Description: "API Gateway endpoint URL with path disable_user/{id}"
+    Value: !Sub "https://${UserApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/disable_user/{id}"
+  DisableUserFunctionArn:
+    Description: "Disable user Lambda Function ARN"
+    Value: !GetAtt DisableUserFunction.Arn
+  EnableUserApiUrl:
+    Description: "API Gateway endpoint URL with path enable_user/{id}"
+    Value: !Sub "https://${UserApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/enable_user/{id}"
+  EnableUserFunctionArn:
+    Description: "Enable user Lambda Function ARN"
+    Value: !GetAtt EnableUserFunction.Arn
+  LoginApiUrl:
+    Description: "API Gateway endpoint URL with path login"
+    Value: !Sub "https://${AuthApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/login"
+  LoginFunctionArn:
+    Description: "Login Lambda Function ARN"
+    Value: !GetAtt LoginFunction.Arn
+  RegisterApiUrl:
+    Description: "API Gateway endpoint URL with path register"
+    Value: !Sub "https://${AuthApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/register"
+  RegisterFunctionArn:
+    Description: "Register Lambda Function ARN"
+    Value: !GetAtt RegisterFunction.Arn
+  LambdaExecutionRoleArn:
+    Description: "Lambda Execution Role ARN"
+    Value: !GetAtt LambdaExecutionRole.Arn
