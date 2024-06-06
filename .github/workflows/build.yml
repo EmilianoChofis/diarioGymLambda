@@ -1,4 +1,4 @@
-name: Build
+name: Build,Test and Deploy
 on:
   push:
     branches:
@@ -62,9 +62,13 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y awscli
+
       - name: Install SAM CLI
         run: |
           pip install aws-sam-cli
+      - name: Clear AWS_PROFILE environment variable
+        run: unset AWS_PROFILE
+
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
