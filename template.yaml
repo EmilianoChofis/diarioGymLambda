@@ -1,8 +1,7 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
-Description: >
+Description: |
   gymDiarioLambda
-
   Sample SAM Template for gymDiarioLambda
 
 # More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
@@ -33,6 +32,17 @@ Resources:
                   - logs:CreateLogStream
                   - logs:PutLogEvents
                 Resource: arn:aws:logs:*:*:*
+        - PolicyName: SecretsManagerReadWrite
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - secretsmanager:GetSecretValue
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource: arn:aws:logs:*:*:*
 
   UserApi:
     Type: AWS::Serverless::Api
@@ -53,15 +63,19 @@ Resources:
       Handler: app.lambda_handler
       Runtime: python3.12
       Role: !GetAtt LambdaExecutionRole.Arn
-      Architectures:
-        - x86_64
       Events:
         GetUserById:
           Type: Api
           Properties:
             RestApiId: !Ref UserApi
-            Path: /get_user_by_id/{id}
+            Path: /get_user_by_id
             Method: get
+      MemorySize: 3008
+      Timeout: 30
+      Environment:
+        Variables:
+          DB_HOST: databaseforlambdas.czssy4oigfcr.us-east-1.rds.amazonaws.com
+          DB_NAME: chomfit
 
   UpdateUserDataFunction:
     Type: AWS::Serverless::Function
@@ -79,6 +93,12 @@ Resources:
             RestApiId: !Ref UserApi
             Path: /update_user
             Method: patch
+      MemorySize: 3008
+      Timeout: 30
+      Environment:
+        Variables:
+          DB_HOST: databaseforlambdas.czssy4oigfcr.us-east-1.rds.amazonaws.com
+          DB_NAME: chomfit
 
   DisableUserFunction:
     Type: AWS::Serverless::Function
@@ -94,8 +114,14 @@ Resources:
           Type: Api
           Properties:
             RestApiId: !Ref UserApi
-            Path: /disable_user/{id}
+            Path: /disable_user
             Method: patch
+      MemorySize: 3008
+      Timeout: 30
+      Environment:
+        Variables:
+          DB_HOST: databaseforlambdas.czssy4oigfcr.us-east-1.rds.amazonaws.com
+          DB_NAME: chomfit
 
   EnableUserFunction:
     Type: AWS::Serverless::Function
@@ -111,8 +137,14 @@ Resources:
           Type: Api
           Properties:
             RestApiId: !Ref UserApi
-            Path: /enable_user/{id}
+            Path: /enable_user
             Method: patch
+      MemorySize: 3008
+      Timeout: 30
+      Environment:
+        Variables:
+          DB_HOST: databaseforlambdas.czssy4oigfcr.us-east-1.rds.amazonaws.com
+          DB_NAME: chomfit
 
   LoginFunction:
     Type: AWS::Serverless::Function
@@ -121,8 +153,6 @@ Resources:
       Handler: app.lambda_handler
       Runtime: python3.12
       Role: !GetAtt LambdaExecutionRole.Arn
-      Architectures:
-        - x86_64
       Events:
         Login:
           Type: Api
@@ -130,6 +160,12 @@ Resources:
             RestApiId: !Ref AuthApi
             Path: /login
             Method: post
+      MemorySize: 3008
+      Timeout: 30
+      Environment:
+        Variables:
+          DB_HOST: databaseforlambdas.czssy4oigfcr.us-east-1.rds.amazonaws.com
+          DB_NAME: chomfit
 
   RegisterFunction:
     Type: AWS::Serverless::Function
@@ -147,45 +183,50 @@ Resources:
             RestApiId: !Ref AuthApi
             Path: /register
             Method: post
-
+      MemorySize: 3008
+      Timeout: 30
+      Environment:
+        Variables:
+          DB_HOST: databaseforlambdas.czssy4oigfcr.us-east-1.rds.amazonaws.com
+          DB_NAME: chomfit
 
 Outputs:
   GetUserByIdApiUrl:
-    Description: "API Gateway endpoint URL with path get_user_by_id/{id}"
-    Value: !Sub "https://${UserApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/get_user_by_id/{id}"
+    Description: API Gateway endpoint URL with path get_user_by_id
+    Value: !Sub https://${UserApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/get_user_by_id
   GetUserByIdFunctionArn:
-    Description: "Get data user Lambda Function ARN"
+    Description: Get data user Lambda Function ARN
     Value: !GetAtt GetUserByIdFunction.Arn
   UpdateUserDataApiUrl:
-    Description: "API Gateway endpoint URL with path update_user"
-    Value: !Sub "https://${UserApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/update_user"
+    Description: API Gateway endpoint URL with path update_user
+    Value: !Sub https://${UserApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/update_user
   UpdateUserDataFunctionArn:
-    Description: "Update user data Lambda Function ARN"
+    Description: Update user data Lambda Function ARN
     Value: !GetAtt UpdateUserDataFunction.Arn
   DisableUserApiUrl:
-    Description: "API Gateway endpoint URL with path disable_user/{id}"
-    Value: !Sub "https://${UserApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/disable_user/{id}"
+    Description: API Gateway endpoint URL with path disable_user
+    Value: !Sub https://${UserApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/disable_user
   DisableUserFunctionArn:
-    Description: "Disable user Lambda Function ARN"
+    Description: Disable user Lambda Function ARN
     Value: !GetAtt DisableUserFunction.Arn
   EnableUserApiUrl:
-    Description: "API Gateway endpoint URL with path enable_user/{id}"
-    Value: !Sub "https://${UserApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/enable_user/{id}"
+    Description: API Gateway endpoint URL with path enable_user
+    Value: !Sub https://${UserApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/enable_user
   EnableUserFunctionArn:
-    Description: "Enable user Lambda Function ARN"
+    Description: Enable user Lambda Function ARN
     Value: !GetAtt EnableUserFunction.Arn
   LoginApiUrl:
-    Description: "API Gateway endpoint URL with path login"
-    Value: !Sub "https://${AuthApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/login"
+    Description: API Gateway endpoint URL with path login
+    Value: !Sub https://${AuthApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/login
   LoginFunctionArn:
-    Description: "Login Lambda Function ARN"
+    Description: Login Lambda Function ARN
     Value: !GetAtt LoginFunction.Arn
   RegisterApiUrl:
-    Description: "API Gateway endpoint URL with path register"
-    Value: !Sub "https://${AuthApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/register"
+    Description: API Gateway endpoint URL with path register
+    Value: !Sub https://${AuthApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/register
   RegisterFunctionArn:
-    Description: "Register Lambda Function ARN"
+    Description: Register Lambda Function ARN
     Value: !GetAtt RegisterFunction.Arn
   LambdaExecutionRoleArn:
-    Description: "Lambda Execution Role ARN"
+    Description: Lambda Execution Role ARN
     Value: !GetAtt LambdaExecutionRole.Arn

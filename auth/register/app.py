@@ -1,22 +1,41 @@
 import json
-
+import os
 import pymysql
+import boto3
+from botocore.exceptions import ClientError
 
-# Configuración de la conexión a la base de datos
-rds_host = "databaseforlambdas.czssy4oigfcr.us-east-1.rds.amazonaws.com"
-db_username = "admin"
-db_password = "admin123"
-db_name = "chomfit"
+
+def get_secret():
+    secret_name = "dev/ute/mysqlSecrets"
+    region_name = "us-east-1"
+
+    session = boto3.session.Session()
+    client = session.client(
+        service_name='secretsmanager',
+        region_name=region_name
+    )
+    try:
+        get_secret_value_response = client.get_secret_value(
+            SecretId=secret_name
+        )
+    except ClientError as e:
+        print(f"ERROR: Unexpected error: Could not to get secrets. {e}")
+        raise e
+
+    secret = get_secret_value_response['SecretString']
+    return secret
 
 
 # Conexión a la base de datos
 def connect_to_db():
+    secret = json.loads(get_secret())
+
     try:
         connection = pymysql.connect(
-            host=rds_host,
-            user=db_username,
-            password=db_password,
-            database=db_name,
+            host=os.getenv('DB_HOST'),
+            user=secret['username'],
+            password=secret['password'],
+            database=os.getenv('DB_NAME'),
             cursorclass=pymysql.cursors.DictCursor
         )
         return connection
@@ -25,7 +44,7 @@ def connect_to_db():
         return None
 
 
-def lambda_handler(event, context):
+def lambda_handler(event, __):
     body = event.get('body')
 
     if not body:
