@@ -22,7 +22,7 @@ Resources:
               Service: lambda.amazonaws.com
             Action: sts:AssumeRole
       Policies:
-        - PolicyName: LambdaBasicExecution
+        - PolicyName: LambdaExecutionPolicy
           PolicyDocument:
             Version: '2012-10-17'
             Statement:
@@ -39,10 +39,7 @@ Resources:
               - Effect: Allow
                 Action:
                   - secretsmanager:GetSecretValue
-                  - logs:CreateLogGroup
-                  - logs:CreateLogStream
-                  - logs:PutLogEvents
-                Resource: arn:aws:logs:*:*:*
+                Resource: '*'
 
   UserApi:
     Type: AWS::Serverless::Api
