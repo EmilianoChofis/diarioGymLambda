@@ -9,6 +9,9 @@ Globals:
   Function:
     Timeout: 120
     MemorySize: 256
+    Runtime: python3.12
+    Architectures:
+      - x86_64
 
 Resources:
   LambdaExecutionRole:
@@ -58,7 +61,6 @@ Resources:
     Properties:
       CodeUri: users/getUserById/
       Handler: app.lambda_handler
-      Runtime: python3.12
       Role: !GetAtt LambdaExecutionRole.Arn
       Events:
         GetUserById:
@@ -66,9 +68,7 @@ Resources:
           Properties:
             RestApiId: !Ref UserApi
             Path: /get_user_by_id
-            Method: get
-      MemorySize: 3008
-      Timeout: 30
+            Method: post
       Environment:
         Variables:
           DB_HOST: databaseforlambdas.czssy4oigfcr.us-east-1.rds.amazonaws.com
@@ -79,10 +79,7 @@ Resources:
     Properties:
       CodeUri: users/updateUserData/
       Handler: app.lambda_handler
-      Runtime: python3.12
       Role: !GetAtt LambdaExecutionRole.Arn
-      Architectures:
-        - x86_64
       Events:
         UpdateUserData:
           Type: Api
@@ -90,8 +87,6 @@ Resources:
             RestApiId: !Ref UserApi
             Path: /update_user
             Method: patch
-      MemorySize: 3008
-      Timeout: 30
       Environment:
         Variables:
           DB_HOST: databaseforlambdas.czssy4oigfcr.us-east-1.rds.amazonaws.com
@@ -102,10 +97,7 @@ Resources:
     Properties:
       CodeUri: users/disableUser/
       Handler: app.lambda_handler
-      Runtime: python3.12
       Role: !GetAtt LambdaExecutionRole.Arn
-      Architectures:
-        - x86_64
       Events:
         DisableUser:
           Type: Api
@@ -113,8 +105,6 @@ Resources:
             RestApiId: !Ref UserApi
             Path: /disable_user
             Method: patch
-      MemorySize: 3008
-      Timeout: 30
       Environment:
         Variables:
           DB_HOST: databaseforlambdas.czssy4oigfcr.us-east-1.rds.amazonaws.com
@@ -125,10 +115,7 @@ Resources:
     Properties:
       CodeUri: users/enableUser/
       Handler: app.lambda_handler
-      Runtime: python3.12
       Role: !GetAtt LambdaExecutionRole.Arn
-      Architectures:
-        - x86_64
       Events:
         EnableUser:
           Type: Api
@@ -136,8 +123,6 @@ Resources:
             RestApiId: !Ref UserApi
             Path: /enable_user
             Method: patch
-      MemorySize: 3008
-      Timeout: 30
       Environment:
         Variables:
           DB_HOST: databaseforlambdas.czssy4oigfcr.us-east-1.rds.amazonaws.com
@@ -148,7 +133,6 @@ Resources:
     Properties:
       CodeUri: auth/login/
       Handler: app.lambda_handler
-      Runtime: python3.12
       Role: !GetAtt LambdaExecutionRole.Arn
       Events:
         Login:
@@ -157,8 +141,6 @@ Resources:
             RestApiId: !Ref AuthApi
             Path: /login
             Method: post
-      MemorySize: 3008
-      Timeout: 30
       Environment:
         Variables:
           DB_HOST: databaseforlambdas.czssy4oigfcr.us-east-1.rds.amazonaws.com
@@ -169,10 +151,7 @@ Resources:
     Properties:
       CodeUri: auth/register/
       Handler: app.lambda_handler
-      Runtime: python3.12
       Role: !GetAtt LambdaExecutionRole.Arn
-      Architectures:
-        - x86_64
       Events:
         Register:
           Type: Api
@@ -180,8 +159,6 @@ Resources:
             RestApiId: !Ref AuthApi
             Path: /register
             Method: post
-      MemorySize: 3008
-      Timeout: 30
       Environment:
         Variables:
           DB_HOST: databaseforlambdas.czssy4oigfcr.us-east-1.rds.amazonaws.com
