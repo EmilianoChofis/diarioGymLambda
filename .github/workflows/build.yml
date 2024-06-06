@@ -35,19 +35,19 @@ jobs:
           python-version: '3.12'
       - name: Install dependencies for getUserById
         run: |
-          cd user/getUserById
+          cd users/getUserById
           pip install -r requirements.txt
       - name: Install dependencies for updateUserData
         run: |
-          cd user/updateUserData
+          cd users/updateUserData
           pip install -r requirements.txt
       - name: Install dependencies for disableUser
         run: |
-          cd user/disableUser
+          cd users/disableUser
           pip install -r requirements.txt
       - name: Install dependencies for enableUser
         run: |
-          cd user/enableUser
+          cd users/enableUser
           pip install -r requirements.txt
       - name: Install dependencies for login
         run: |
