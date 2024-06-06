@@ -1,13 +1,42 @@
 import json
-
 import pymysql
 
-from utils import db_connection
+# Configuración de la conexión a la base de datos
+rds_host = "databaseforlambdas.czssy4oigfcr.us-east-1.rds.amazonaws.com"
+db_username = "admin"
+db_password = "admin123"
+db_name = "chomfit"
+
+
+# Conexión a la base de datos
+def connect_to_db():
+    try:
+        connection = pymysql.connect(
+            host=rds_host,
+            user=db_username,
+            password=db_password,
+            database=db_name,
+            cursorclass=pymysql.cursors.DictCursor
+        )
+        return connection
+    except pymysql.MySQLError as e:
+        print(f"ERROR: Unexpected error: Could not connect to MySQL instance. {e}")
+        return None
 
 
 def lambda_handler(event, __):
-    username = event.get('email')
-    password = event.get('password')
+    body = event.get('body')
+
+    if not body:
+        return {
+            'statusCode': 400,
+            'body': json.dumps('Petición inválida. no se encontró el body.')
+        }
+
+    data = json.loads(body)
+
+    username = data.get('email')
+    password = data.get('password')
 
     if not username or not password:
         return {
@@ -15,7 +44,7 @@ def lambda_handler(event, __):
             'body': json.dumps('Faltan datos para el login.')
         }
 
-    connection = db_connection()
+    connection = connect_to_db()
     if connection is None:
         return {
             'statusCode': 500,
