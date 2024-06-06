@@ -1,8 +1,17 @@
 import json
+import pymysql
 from db_conn import connect_to_db
 
+def validate_user(connection, user_id):
+    with connection.cursor() as cursor:
+        sql = "SELECT role_id FROM users WHERE id = %s"
+        cursor.execute(sql, (user_id,))
+        result = cursor.fetchone()
+        if result and result['role_id'] in ['admin', 'user']:
+            return True
+        return False
 
-def lambda_handler(event, __):
+def lambda_handler(event, context):
     body = event.get('body')
 
     if not body:
@@ -14,22 +23,13 @@ def lambda_handler(event, __):
         }
 
     data = json.loads(body)
+    created_by = data.get('created_by')
 
-    userId = data.get('id')
-
-    if not userId:
+    if not created_by:
         return {
             'statusCode': 400,
             'body': json.dumps({
-                "message": "El campo id es requerido."
-            })
-        }
-
-    if not isinstance(userId, int):
-        return {
-            'statusCode': 400,
-            'body': json.dumps({
-                "message": "El campo id debe ser un número."
+                "message": "El campo created_by es requerido."
             })
         }
 
@@ -43,18 +43,28 @@ def lambda_handler(event, __):
         }
 
     try:
-        with connection.cursor() as cursor:
-            sql = "UPDATE users SET expire_at = DATE_ADD(CURRENT_TIMESTAMP, INTERVAL 30 DAY), enable = '1' WHERE id = %s"
-            cursor.execute(sql, (userId,))
-            connection.commit()
-            response = {
-                'statusCode': 200,
+        if not validate_user(connection, created_by):
+            return {
+                'statusCode': 403,
                 'body': json.dumps({
-                    'message': 'Usuario habilitado correctamente',
+                    "message": "No tienes permisos para realizar esta acción."
                 })
             }
-            return response
-    except Exception as e:
+
+        with connection.cursor() as cursor:
+            sql = "SELECT * FROM exercises"
+            cursor.execute(sql)
+            result = cursor.fetchall()
+            return {
+                'statusCode': 200,
+                'body': json.dumps({
+                    "message": "Consulta exitosa.",
+                    "data": result
+                })
+            }
+
+    except pymysql.MySQLError as e:
+        print(f"ERROR: {e}")
         return {
             'statusCode': 500,
             'body': json.dumps({
