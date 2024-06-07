@@ -56,6 +56,12 @@ Resources:
       Name: AuthApi
       StageName: Prod
 
+  ExercisesApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      Name: ExercisesApi
+      StageName: Prod
+
   GetUserByIdFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -164,6 +170,59 @@ Resources:
           DB_HOST: databaseforlambdas.czssy4oigfcr.us-east-1.rds.amazonaws.com
           DB_NAME: chomfit
 
+  FindAllExercisesFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: exercises/find_all/
+      Handler: app.lambda_handler
+      Role: !GetAtt LambdaExecutionRole.Arn
+      Events:
+        FindAllExercises:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ExercisesApi
+            Path: /find_all_exercises
+            Method: post
+      Environment:
+        Variables:
+          DB_HOST: databaseforlambdas.czssy4oigfcr.us-east-1.rds.amazonaws.com
+          DB_NAME: chomfit
+
+  RegisterExerciseFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: exercises/register/
+      Handler: app.lambda_handler
+      Role: !GetAtt LambdaExecutionRole.Arn
+      Events:
+        RegisterExercise:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ExercisesApi
+            Path: /register_exercise
+            Method: post
+      Environment:
+        Variables:
+          DB_HOST: databaseforlambdas.czssy4oigfcr.us-east-1.rds.amazonaws.com
+          DB_NAME: chomfit
+
+  UpdateExerciseFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: exercises/update/
+      Handler: app.lambda_handler
+      Role: !GetAtt LambdaExecutionRole.Arn
+      Events:
+        UpdateExercise:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ExercisesApi
+            Path: /update_exercise
+            Method: patch
+      Environment:
+        Variables:
+          DB_HOST: databaseforlambdas.czssy4oigfcr.us-east-1.rds.amazonaws.com
+          DB_NAME: chomfit
 Outputs:
   GetUserByIdApiUrl:
     Description: API Gateway endpoint URL with path get_user_by_id
@@ -201,6 +260,24 @@ Outputs:
   RegisterFunctionArn:
     Description: Register Lambda Function ARN
     Value: !GetAtt RegisterFunction.Arn
+  FindAllExercisesApiUrl:
+    Description: API Gateway endpoint URL with path find_all_exercises
+    Value: !Sub https://${ExercisesApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/find_all_exercises
+  FindAllExercisesFunctionArn:
+    Description: Find all exercises Lambda Function ARN
+    Value: !GetAtt FindAllExercisesFunction.Arn
+  RegisterExerciseApiUrl:
+    Description: API Gateway endpoint URL with path register_exercise
+    Value: !Sub https://${ExercisesApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/register_exercise
+  RegisterExerciseFunctionArn:
+    Description: Register exercise Lambda Function ARN
+    Value: !GetAtt RegisterExerciseFunction.Arn
+  UpdateExerciseApiUrl:
+    Description: API Gateway endpoint URL with path update_exercise
+    Value: !Sub https://${ExercisesApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/update_exercise
+  UpdateExerciseFunctionArn:
+    Description: Update exercise Lambda Function ARN
+    Value: !GetAtt UpdateExerciseFunction.Arn
   LambdaExecutionRoleArn:
     Description: Lambda Execution Role ARN
     Value: !GetAtt LambdaExecutionRole.Arn
