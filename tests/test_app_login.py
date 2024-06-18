@@ -1,11 +1,17 @@
+import unittest
+import json
+
 from auth.login import app
 
+mock_body = {
+    "body": json.dumps({
+        "email": "user",
+        "password": "1234"
+    })
+}
 
-def test_lambda_handler():
-    evento = {
-        'email': 'jdrj40@gmail.com',
-        'password': 'qwerty1231'
-    }
 
-    response = app.lambda_handler(evento, {})
-    print(response)
+class TestAppLogin(unittest.TestCase):
+    def test_lambda_handler(self):
+        result = app.lambda_handler(mock_body, None)
+        self.assertEqual(result['statusCode'], 200)
