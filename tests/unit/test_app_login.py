@@ -1,4 +1,4 @@
-from login import app
+from auth.login import app
 
 
 def test_lambda_handler():
