@@ -8,13 +8,39 @@ def lambda_handler(event, __):
     if not body:
         return {
             'statusCode': 400,
-            'body': json.dumps('Petición inválida. no se encontró el body.')
+            'body': json.dumps({
+                "message": "El body es requerido para la petición."
+            })
         }
 
     data = json.loads(body)
 
     user_id = data.get('id')
     connection = connect_to_db()
+
+    if connection is None:
+        return {
+            'statusCode': 500,
+            'body': json.dumps({
+                "message": "Error de servidor. No se pudo conectar a la base de datos. Inténtalo más tarde."
+            })
+        }
+
+    if not user_id:
+        return {
+            'statusCode': 400,
+            'body': json.dumps({
+                "message": "El campo id es requerido."
+            })
+        }
+
+    if not isinstance(user_id, int):
+        return {
+            'statusCode': 400,
+            'body': json.dumps({
+                "message": "El campo id debe ser un número."
+            })
+        }
 
     try:
         with connection.cursor() as cursor:
@@ -25,19 +51,28 @@ def lambda_handler(event, __):
             if result:
                 response = {
                     'statusCode': 200,
-                    'body': json.dumps(result)
+                    'body': json.dumps({
+                        "message": "Usuario encontrado",
+                        "data": result
+                    })
                 }
             else:
                 response = {
                     'statusCode': 404,
-                    'body': json.dumps({'message': 'User not found'})
+                    'body': json.dumps(
+                        {
+                            'message': 'Usuario no encontrado.'
+                        }
+                    )
                 }
 
             return response
     except Exception as e:
         return {
             'statusCode': 500,
-            'body': json.dumps({'message': str(e)})
+            'body': json.dumps({
+                'message': "Error de servidor. Vuelve a intentarlo más tarde."
+            })
         }
 
     finally:

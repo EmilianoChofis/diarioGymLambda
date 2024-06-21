@@ -19,7 +19,6 @@ confirm_changeset = true
 resolve_s3 = true
 s3_prefix = "gymDiarioLambda"
 region = "us-east-1"
-profile = "eoh"
 disable_rollback = true
 image_repositories = []
 

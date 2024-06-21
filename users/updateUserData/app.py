@@ -25,14 +25,26 @@ def lambda_handler(event, __):
     if not user_id:
         return {
             'statusCode': 400,
-            'body': json.dumps('Falta el ID del usuario.')
+            'body': json.dumps({
+                "message": "El campo id es requerido."
+            })
+        }
+
+    if not isinstance(user_id, int):
+        return {
+            'statusCode': 400,
+            'body': json.dumps({
+                "message": "El campo id debe ser un número."
+            })
         }
 
     connection = connect_to_db()
     if connection is None:
         return {
             'statusCode': 500,
-            'body': json.dumps('No se pudo conectar a la base de datos.')
+            'body': json.dumps({
+                "message": "Error de servidor. No se pudo conectar a la base de datos. Inténtalo más tarde."
+            })
         }
 
     try:
@@ -45,12 +57,22 @@ def lambda_handler(event, __):
             if not result:
                 return {
                     'statusCode': 404,
-                    'body': json.dumps('Usuario no encontrado.')
+                    'body': json.dumps({
+                        "message": "Usuario no encontrado."
+                    })
                 }
 
             # Actualizar la información del usuario
             update_fields = []
             update_values = []
+
+            if not username and not password and not email and not role:
+                return {
+                    'statusCode': 400,
+                    'body': json.dumps({
+                        "message": "No se recibieron datos para actualizar."
+                    })
+                }
 
             if username:
                 update_fields.append("username = %s")
@@ -72,14 +94,25 @@ def lambda_handler(event, __):
 
         return {
             'statusCode': 200,
-            'body': json.dumps('Usuario actualizado exitosamente.')
+            'body': json.dumps({
+                "message": "Usuario actualizado correctamente.",
+                "data": {
+                    "id": user_id,
+                    "username": username,
+                    "email": email,
+                    "role": role
+                }
+
+            })
         }
 
     except pymysql.MySQLError as e:
         print(f"ERROR: {e}")
         return {
             'statusCode': 500,
-            'body': json.dumps('Error en el servidor al actualizar el usuario.')
+            'body': json.dumps({
+                'message': "Error de servidor. Vuelve a intentarlo más tarde."
+            })
         }
 
     finally:

@@ -1,4 +1,4 @@
-name: Build
+name: Build,Test and Deploy
 on:
   push:
     branches:
@@ -18,3 +18,66 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+  deploy:
+    name: Deploy to AWS
+    runs-on: ubuntu-latest
+    needs: sonarcloud
+    if: ${{ github.event_name == 'push' || github.event_name == 'pull_request' }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.12'
+      - name: Install dependencies for getUserById
+        run: |
+          cd users/getUserById
+          pip install -r requirements.txt
+      - name: Install dependencies for updateUserData
+        run: |
+          cd users/updateUserData
+          pip install -r requirements.txt
+      - name: Install dependencies for disableUser
+        run: |
+          cd users/disableUser
+          pip install -r requirements.txt
+      - name: Install dependencies for enableUser
+        run: |
+          cd users/enableUser
+          pip install -r requirements.txt
+      - name: Install dependencies for login
+        run: |
+          cd auth/login
+          pip install -r requirements.txt
+      - name: Install dependencies for register
+        run: |
+          cd auth/register
+          pip install -r requirements.txt
+
+      - name: Install AWS CLI
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y awscli
+
+      - name: Install SAM CLI
+        run: |
+          pip install aws-sam-cli
+      - name: Clear AWS_PROFILE environment variable
+        run: unset AWS_PROFILE
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+
+      - name: Build SAM application
+        run: sam build
+
+      - name: Deploy SAM application
+        run: sam deploy --no-confirm-changeset --no-fail-on-empty-changeset --stack-name gymDiarioLambda --capabilities CAPABILITY_IAM
