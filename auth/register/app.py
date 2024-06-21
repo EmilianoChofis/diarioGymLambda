@@ -1,6 +1,6 @@
 import json
 import pymysql
-from .db_conn import connect_to_db
+from auth.register.db_conn import connect_to_db
 
 
 def lambda_handler(event, __):

@@ -1,7 +1,7 @@
 import json
 import os
 import pymysql
-from .get_secret import get_secret
+from auth.register.get_secret import get_secret
 
 
 def connect_to_db():
