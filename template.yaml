@@ -137,7 +137,7 @@ Resources:
   LoginFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: auth/login/
+      CodeUri: login/
       Handler: app.lambda_handler
       Role: !GetAtt LambdaExecutionRole.Arn
       Events:
