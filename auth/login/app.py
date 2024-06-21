@@ -39,7 +39,7 @@ def lambda_handler(event, __):
 
     try:
         with connection.cursor() as cursor:
-            sql = "SELECT * FROM users WHERE email = %s AND password = %s"
+            sql = "SELECT * FROM users_inc WHERE email = %s AND password = %s"
             cursor.execute(sql, (username, password))
             result = cursor.fetchone()
 

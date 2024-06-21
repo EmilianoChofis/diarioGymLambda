@@ -48,7 +48,7 @@ def lambda_handler(event, __):
 
     try:
         with connection.cursor() as cursor:
-            sql = "SELECT * FROM users WHERE username = %s OR email = %s"
+            sql = "SELECT * FROM users_inc WHERE username = %s OR email = %s"
             cursor.execute(sql, (username, email))
             result = cursor.fetchone()
             if result:
@@ -59,7 +59,7 @@ def lambda_handler(event, __):
                     })
                 }
 
-            sql = "INSERT INTO users (username, password, email, role_id) VALUES (%s, %s, %s, %s)"
+            sql = "INSERT INTO users_inc (username, password, email, role_id) VALUES (%s, %s, %s, %s)"
             cursor.execute(sql, (username, password, email, role))
             connection.commit()
 

@@ -50,7 +50,7 @@ def lambda_handler(event, __):
     try:
         with connection.cursor() as cursor:
             # Verificar si el usuario existe
-            sql = "SELECT * FROM users WHERE id = %s"
+            sql = "SELECT * FROM users_inc WHERE id = %s"
             cursor.execute(sql, (user_id,))
             result = cursor.fetchone()
 
@@ -88,7 +88,7 @@ def lambda_handler(event, __):
                 update_values.append(role)
 
             update_values.append(user_id)
-            sql = f"UPDATE users SET {', '.join(update_fields)} WHERE id = %s"
+            sql = f"UPDATE users_inc SET {', '.join(update_fields)} WHERE id = %s"
             cursor.execute(sql, update_values)
             connection.commit()
 

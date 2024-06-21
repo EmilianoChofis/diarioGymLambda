@@ -4,7 +4,7 @@ from db_conn import connect_to_db
 
 def validate_user(connection, user_id):
     with connection.cursor() as cursor:
-        sql = "SELECT role_id FROM users WHERE id = %s"
+        sql = "SELECT role_id FROM users_inc WHERE id = %s"
         cursor.execute(sql, (user_id,))
         result = cursor.fetchone()
         if result and result['role_id'] in ['admin', 'user']:
@@ -52,7 +52,7 @@ def lambda_handler(event, context):
             }
 
         with connection.cursor() as cursor:
-            sql = "SELECT * FROM exercises"
+            sql = "SELECT * FROM exercises_inc"
             cursor.execute(sql)
             result = cursor.fetchall()
             return {

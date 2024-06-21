@@ -4,7 +4,7 @@ from db_conn import connect_to_db
 
 def validate_admin(connection, user_id):
     with connection.cursor() as cursor:
-        sql = "SELECT role_id FROM users WHERE id = %s"
+        sql = "SELECT role_id FROM users_inc WHERE id = %s"
         cursor.execute(sql, (user_id,))
         result = cursor.fetchone()
         if result and result['role_id'] == 'admin':
@@ -54,7 +54,7 @@ def lambda_handler(event, context):
             }
 
         with connection.cursor() as cursor:
-            sql = "INSERT INTO exercises (name, description, created_by) VALUES (%s, %s, %s)"
+            sql = "INSERT INTO exercises_inc (name, description, created_by) VALUES (%s, %s, %s)"
             cursor.execute(sql, (name, description, created_by))
             connection.commit()
             return {

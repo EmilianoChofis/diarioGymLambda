@@ -44,7 +44,7 @@ def lambda_handler(event, __):
 
     try:
         with connection.cursor() as cursor:
-            sql = "UPDATE users SET expire_at = CURRENT_TIMESTAMP, enable = '0' WHERE id = %s"
+            sql = "UPDATE users_inc SET expire_at = CURRENT_TIMESTAMP, enable = '0' WHERE id = %s"
             cursor.execute(sql, (userId,))
             connection.commit()
             response = {
