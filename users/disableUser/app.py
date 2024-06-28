@@ -10,13 +10,10 @@ def lambda_handler(event, __):
     data = json.loads(token)
     access_token = data.get('Authorization')
     claims = jwt.decode(access_token, options={"verify_signature": False})
-    print(claims)
-    #admin
 
     role = None
     if 'cognito:groups' in claims:
         role = claims['cognito:groups']
-        print(role)
 
     if role is None or role[0] != 'administradores':
         return {
@@ -36,9 +33,9 @@ def lambda_handler(event, __):
 
     data = json.loads(body)
 
-    userId = data.get('id')
+    user_id = data.get('id')
 
-    if not userId:
+    if not user_id:
         return {
             'statusCode': 400,
             'body': json.dumps({
@@ -46,7 +43,7 @@ def lambda_handler(event, __):
             })
         }
 
-    if not isinstance(userId, int):
+    if not isinstance(user_id, int):
         return {
             'statusCode': 400,
             'body': json.dumps({
@@ -66,18 +63,19 @@ def lambda_handler(event, __):
     try:
         with connection.cursor() as cursor:
             sql = "UPDATE users SET expire_at = CURRENT_TIMESTAMP, enable = '0' WHERE id = %s"
-            cursor.execute(sql, (userId,))
+            cursor.execute(sql, (user_id,))
             connection.commit()
             response = {
                 'statusCode': 200,
                 'body': json.dumps({'message': 'Usuario deshabilitado correctamente'})
             }
             return response
+
     except Exception as e:
         return {
             'statusCode': 500,
             'body': json.dumps({
-                'message': "Error de servidor. Vuelve a intentarlo más tarde."
+                'message': "Error de servidor. Vuelve a intentarlo más tarde." + str(e)
             })
         }
 
