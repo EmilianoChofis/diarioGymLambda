@@ -17,14 +17,6 @@ def lambda_handler(event, __):
 
     id_token = header.get('Authorization')
 
-    if not id_token:
-        return {
-            'statusCode': 401,
-            'body': json.dumps({
-                "message": "No autorizado."
-            })
-        }
-
     if not body:
         return {
             'statusCode': 400,
