@@ -4,6 +4,14 @@ import jwt
 
 
 def lambda_handler(event, __):
+    print(event)
+    return {
+        'statusCode': 200,
+        'body': json.dumps({
+            "message": event
+        })
+    }
+
     try:
         body = json.loads(event.get("body", "{}"))
         header = json.loads(event.get("headers", "{}"))
