@@ -6,10 +6,12 @@ import jwt
 def lambda_handler(event, __):
     body = event.get('body')
 
-    token = event.get('headers')
-    data = json.loads(token)
-    access_token = data.get('Authorization')
-    claims = jwt.decode(access_token, options={"verify_signature": False})
+    headers = event.get('headers')
+    data_body = json.loads(body)
+    data = json.loads(headers)
+    token = data.get('Authorization')
+    user_id = data_body.get('id')
+    claims = jwt.decode(token, options={"verify_signature": False})
 
     role = None
     if 'cognito:groups' in claims:
