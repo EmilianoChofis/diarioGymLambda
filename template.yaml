@@ -43,6 +43,17 @@ Resources:
                 Action:
                   - secretsmanager:GetSecretValue
                 Resource: '*'
+        - PolicyName: CognitoAccessPolicy
+          PolicyDocument:
+              Version: '2012-10-17'
+              Statement:
+                - Effect: Allow
+                  Action:
+                    - cognito-idp:AdminListGroupsForUser
+                    - cognito-idp:AdminGetUser
+                    - cognito-idp:ListUsers
+                    - cognito-idp:AdminInitiateAuth
+                  Resource: arn:aws:cognito-idp:us-east-1:010446714727:userpool/us-east-1_1HAjH1fKj
 
   UserApi:
     Type: AWS::Serverless::Api
