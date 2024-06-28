@@ -1,6 +1,6 @@
 import json
+
 from db_conn import connect_to_db
-import jwt
 
 
 def lambda_handler(event, __):
@@ -15,7 +15,12 @@ def lambda_handler(event, __):
             })
         }
 
-    id_token = header.get('Authorization')
+    return {
+        'statusCode': 200,
+        'body': json.dumps({
+            "message": header
+        })
+    }
 
     if not body:
         return {
