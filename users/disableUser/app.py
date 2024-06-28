@@ -4,7 +4,6 @@ import jwt
 
 
 def lambda_handler(event, __):
-
     try:
         body = json.loads(event.get("body", "{}"))
         header = json.loads(event.get("headers", "{}"))
@@ -23,16 +22,6 @@ def lambda_handler(event, __):
             'statusCode': 401,
             'body': json.dumps({
                 "message": "No autorizado."
-            })
-        }
-
-    try:
-        claims = jwt.decode(id_token, options={"verify_signature": False})
-    except Exception as e:
-        return {
-            'statusCode': 401,
-            'body': json.dumps({
-                "message": "Error al verificar token: " + str(e)
             })
         }
 
