@@ -4,7 +4,8 @@ import jwt
 
 
 def lambda_handler(event, __):
-    body = event.get('body')
+    body = json.loads(event["body"])
+    header = json.loads(event["headers"])
 
     if not body:
         return {
@@ -14,9 +15,7 @@ def lambda_handler(event, __):
             })
         }
 
-    data = json.loads(body)
-
-    user_id = data.get('id')
+    user_id = body.get('id')
 
     if not user_id:
         return {
