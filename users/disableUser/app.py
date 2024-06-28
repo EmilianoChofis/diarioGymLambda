@@ -5,15 +5,29 @@ import jwt
 
 def lambda_handler(event, __):
     body = event.get('body')
-
     headers = event.get('headers')
-    data_body = json.loads(body)
+
+    if headers is None:
+        return {
+            'statusCode': 400,
+            'body': json.dumps({
+                "message": "Los headers son requeridos para la petición."
+            })
+        }
+
+    if not body:
+        return {
+            'statusCode': 400,
+            'body': json.dumps({
+                "message": "El body es requerido para la petición."
+            })
+        }
+
     data = json.loads(headers)
     token = data.get('Authorization')
-    user_id = data_body.get('id')
     claims = jwt.decode(token, options={"verify_signature": False})
-
     role = None
+
     if 'cognito:groups' in claims:
         role = claims['cognito:groups']
 
@@ -25,13 +39,7 @@ def lambda_handler(event, __):
             })
         }
 
-    if not body:
-        return {
-            'statusCode': 400,
-            'body': json.dumps({
-                "message": "El body es requerido para la petición."
-            })
-        }
+
 
     data = json.loads(body)
 
