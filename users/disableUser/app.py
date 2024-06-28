@@ -35,17 +35,6 @@ def lambda_handler(event, __):
             })
         }
 
-    if 'cognito:groups' in claims:
-        role = claims['cognito:groups']
-
-        if 'administradores' not in role:
-            return {
-                'statusCode': 403,
-                'body': json.dumps({
-                    "message": "No tienes permisos para realizar esta acción."
-                })
-            }
-
     if not body:
         return {
             'statusCode': 400,
