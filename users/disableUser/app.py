@@ -1,11 +1,9 @@
 import json
-
 from db_conn import connect_to_db
 
 
 def lambda_handler(event, __):
-    body = json.loads(event.get("body"))
-    header = json.loads(event.get("headers"))
+    body = event.get('body')
 
     if not body:
         return {
@@ -15,9 +13,11 @@ def lambda_handler(event, __):
             })
         }
 
-    user_id = body.get('id')
+    data = json.loads(body)
 
-    if not user_id:
+    userId = data.get('id')
+
+    if not userId:
         return {
             'statusCode': 400,
             'body': json.dumps({
@@ -25,7 +25,7 @@ def lambda_handler(event, __):
             })
         }
 
-    if not isinstance(user_id, int):
+    if not isinstance(userId, int):
         return {
             'statusCode': 400,
             'body': json.dumps({
@@ -33,34 +33,32 @@ def lambda_handler(event, __):
             })
         }
 
-    try:
-        connection = connect_to_db()
-        if connection is None:
-            return {
-                'statusCode': 500,
-                'body': json.dumps({
-                    "message": "Error de servidor. No se pudo conectar a la base de datos. Inténtalo más tarde."
-                })
-            }
+    connection = connect_to_db()
+    if connection is None:
+        return {
+            'statusCode': 500,
+            'body': json.dumps({
+                "message": "Error de servidor. No se pudo conectar a la base de datos. Inténtalo más tarde."
+            })
+        }
 
+    try:
         with connection.cursor() as cursor:
             sql = "UPDATE users SET expire_at = CURRENT_TIMESTAMP, enable = '0' WHERE id = %s"
-            cursor.execute(sql, (user_id,))
+            cursor.execute(sql, (userId,))
             connection.commit()
             response = {
                 'statusCode': 200,
                 'body': json.dumps({'message': 'Usuario deshabilitado correctamente'})
             }
             return response
-
     except Exception as e:
         return {
             'statusCode': 500,
             'body': json.dumps({
-                'message': "Error de servidor. Vuelve a intentarlo más tarde. " + str(e)
+                'message': "Error de servidor. Vuelve a intentarlo más tarde."
             })
         }
 
     finally:
-        if connection:
-            connection.close()
+        connection.close()
