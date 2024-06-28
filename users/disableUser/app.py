@@ -4,23 +4,8 @@ from db_conn import connect_to_db
 
 
 def lambda_handler(event, __):
-    try:
-        body = json.loads(event.get("body", "{}"))
-        header = json.loads(event.get("headers", "{}"))
-    except json.JSONDecodeError as e:
-        return {
-            'statusCode': 400,
-            'body': json.dumps({
-                "message": "Error en la estructura del JSON: " + str(e)
-            })
-        }
-
-    return {
-        'statusCode': 200,
-        'body': json.dumps({
-            "message": header
-        })
-    }
+    body = json.loads(event.get("body"))
+    header = json.loads(event.get("headers"))
 
     if not body:
         return {
