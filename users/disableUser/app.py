@@ -7,6 +7,37 @@ def lambda_handler(event, __):
     body = json.loads(event["body"])
     header = json.loads(event["headers"])
 
+    id_token = header.get('Authorization')
+
+    if not id_token:
+        return {
+            'statusCode': 401,
+            'body': json.dumps({
+                "message": "No autorizado."
+            })
+        }
+
+    try:
+        claims = jwt.decode(id_token, options={"verify_signature": False})
+    except Exception as e:
+        return {
+            'statusCode': 401,
+            'body': json.dumps({
+                "message": "Error al verificar token" + str(e)
+            })
+        }
+
+    if 'cognito:groups' in claims:
+        role = claims['cognito:groups']
+
+        if 'administradores' not in role:
+            return {
+                'statusCode': 403,
+                'body': json.dumps({
+                    "message": "No tienes permisos para realizar esta acción."
+                })
+            }
+
     if not body:
         return {
             'statusCode': 400,
