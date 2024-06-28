@@ -4,8 +4,16 @@ import jwt
 
 
 def lambda_handler(event, __):
-    body = json.loads(event["body"])
-    header = json.loads(event["headers"])
+    try:
+        body = json.loads(event.get("body", "{}"))
+        header = json.loads(event.get("headers", "{}"))
+    except json.JSONDecodeError as e:
+        return {
+            'statusCode': 400,
+            'body': json.dumps({
+                "message": "Error en la estructura del JSON: " + str(e)
+            })
+        }
 
     id_token = header.get('Authorization')
 
@@ -23,7 +31,7 @@ def lambda_handler(event, __):
         return {
             'statusCode': 401,
             'body': json.dumps({
-                "message": "Error al verificar token" + str(e)
+                "message": "Error al verificar token: " + str(e)
             })
         }
 
@@ -64,16 +72,16 @@ def lambda_handler(event, __):
             })
         }
 
-    connection = connect_to_db()
-    if connection is None:
-        return {
-            'statusCode': 500,
-            'body': json.dumps({
-                "message": "Error de servidor. No se pudo conectar a la base de datos. Inténtalo más tarde."
-            })
-        }
-
     try:
+        connection = connect_to_db()
+        if connection is None:
+            return {
+                'statusCode': 500,
+                'body': json.dumps({
+                    "message": "Error de servidor. No se pudo conectar a la base de datos. Inténtalo más tarde."
+                })
+            }
+
         with connection.cursor() as cursor:
             sql = "UPDATE users SET expire_at = CURRENT_TIMESTAMP, enable = '0' WHERE id = %s"
             cursor.execute(sql, (user_id,))
@@ -88,9 +96,10 @@ def lambda_handler(event, __):
         return {
             'statusCode': 500,
             'body': json.dumps({
-                'message': "Error de servidor. Vuelve a intentarlo más tarde." + str(e)
+                'message': "Error de servidor. Vuelve a intentarlo más tarde. " + str(e)
             })
         }
 
     finally:
-        connection.close()
+        if connection:
+            connection.close()
