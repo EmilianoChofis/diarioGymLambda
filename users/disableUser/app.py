@@ -1,9 +1,38 @@
 import json
 from db_conn import connect_to_db
+import jwt
 
 
 def lambda_handler(event, __):
     body = event.get('body')
+
+    token = event.get('headers')
+    data = json.loads(token)
+    access_token = data.get('Authorization')
+
+    if not access_token:
+        return {
+            'statusCode': 401,
+            'body': json.dumps({
+                "message": "No tienes permisos para realizar esta acción."
+            })
+        }
+
+    claims = jwt.decode(access_token, options={"verify_signature": False})
+    print(claims)
+    #admin
+    role = None
+    if 'cognito:groups' in claims:
+        role = claims['cognito:groups']
+        print(role)
+
+    if role is None or role[0] != 'administradores':
+        return {
+            'statusCode': 401,
+            'body': json.dumps({
+                "message": "No tienes permisos para realizar esta acción."
+            })
+        }
 
     if not body:
         return {
@@ -44,7 +73,7 @@ def lambda_handler(event, __):
 
     try:
         with connection.cursor() as cursor:
-            sql = "UPDATE users_inc SET expire_at = CURRENT_TIMESTAMP, enable = '0' WHERE id = %s"
+            sql = "UPDATE users SET expire_at = CURRENT_TIMESTAMP, enable = '0' WHERE id = %s"
             cursor.execute(sql, (userId,))
             connection.commit()
             response = {
