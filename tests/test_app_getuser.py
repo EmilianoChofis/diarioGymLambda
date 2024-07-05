@@ -1,5 +1,4 @@
 from users.getUserById import app
-import pytest
 
 
 def test_lambda_handler_success():
