@@ -13,6 +13,7 @@ Globals:
     Architectures:
       - x86_64
 
+
 Resources:
   LambdaExecutionRole:
     Type: AWS::IAM::Role
@@ -55,6 +56,110 @@ Resources:
                     - cognito-idp:AdminInitiateAuth
                   Resource: arn:aws:cognito-idp:us-east-1:010446714727:userpool/us-east-1_1HAjH1fKj
 
+  RelationalDatabase:
+    Type: AWS::RDS::DBInstance
+    Properties:
+      AllocatedStorage: '5'
+      DBInstanceClass: db.t3.micro
+      AvailabilityZone: us-east-1
+      DBName: Chomfit
+      Engine: mysql
+      EngineVersion: '8.0.35'
+      MasterUsername: !Join [ "", [ "{{resolve:secretsmanager:", !Ref MyDBSecret, ":SecretString:username}}" ] ]
+      MasterUserPassword: !Join [ "", [ "{{resolve:secretsmanager:", !Ref MyDBSecret, ":SecretString:password}}" ] ]
+      VPCSecurityGroups:
+        - !GetAtt DatabaseSecurityGroup.GroupId
+
+  DatabaseSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Enable MySQL access
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 3306
+          ToPort: 3306
+          CidrIp: 0.0.0.0/0
+
+  MyDBSecret:
+    Type: AWS::SecretsManager::Secret
+    Properties:
+      Name: MyDBCredentials
+      Description: RDS MySQL credentials
+      GenerateSecretString:
+        SecretStringTemplate: '{"username": "admin"}'
+        GenerateStringKey: "password"
+        PasswordLength: 16
+        ExcludeCharacters: '"@/\\'
+
+  UserPool:
+    Type: AWS::Cognito::UserPool
+    Properties:
+      UserPoolName: !Sub ${AWS::StackName}-UserPool
+      AdminCreateUserConfig:
+        AllowAdminCreateUserOnly: false
+      AliasAttributes:
+        - email
+        - preferred_username
+      AutoVerifiedAttributes:
+        - email
+      Schema:
+        - Name: email
+          Required: true
+          Mutable: true
+      VerificationMessageTemplate:
+        DefaultEmailOption: CONFIRM_WITH_CODE
+      MfaConfiguration: 'OFF'
+      AccountRecoverySetting:
+          RecoveryMechanisms:
+            - Name: verified_email
+              Priority: 1
+
+  MyUserPoolClient:
+    Type: AWS::Cognito::UserPoolClient
+    Properties:
+      ClientName: !Sub ${AWS::StackName}-client
+      UserPoolId: !Ref UserPool
+      GenerateSecret: false
+      ExplicitAuthFlows:
+        - ADMIN_NO_SRP_AUTH
+        - ALLOW_USER_PASSWORD_AUTH
+        - ALLOW_ADMIN_USER_PASSWORD_AUTH
+        - ALLOW_USER_SRP_AUTH
+        - ALLOW_REFRESH_TOKEN_AUTH
+      PreventUserExistenceErrors: ENABLED
+
+  AdminGroup:
+    Type: AWS::Cognito::UserPoolGroup
+    Properties:
+      GroupName: Admin
+      UserPoolId: !Ref UserPool
+      Description: Grupo de administradores con permisos
+
+  UserGroup:
+    Type: AWS::Cognito::UserPoolGroup
+    Properties:
+      GroupName: User
+      UserPoolId: !Ref UserPool
+      Description: usuario regular
+
+  CouchGroup:
+    Type: AWS::Cognito::UserPoolGroup
+    Properties:
+      GroupName: Couch
+      UserPoolId: !Ref UserPool
+      Description: Entrenadores
+
+  UserApiCognitoAuthorizer:
+    Type: AWS::ApiGateway::Authorizer
+    Properties:
+      Name: UserApiCognitoAuthorizer
+      RestApiId: !Ref UserApi
+      Type: COGNITO_USER_POOLS
+      IdentitySource: method.request.header.Authorization
+      ProviderARNs:
+        - !GetAtt UserPool.Arn
+
+
   UserApi:
     Type: AWS::Serverless::Api
     Properties:
@@ -86,10 +191,15 @@ Resources:
             RestApiId: !Ref UserApi
             Path: /get_user_by_id
             Method: post
+            Auth:
+              Authorizer: UserApiCognitoAuthorizer
       Environment:
         Variables:
-          DB_HOST: databaseforlambdas.czssy4oigfcr.us-east-1.rds.amazonaws.com
-          DB_NAME: chomfit
+          DB_HOST: !GetAtt RelationalDatabase.Endpoint.Address
+          DB_NAME: Chomfit
+          SECRET_NAME: !Ref MyDBSecret
+
+
 
   UpdateUserDataFunction:
     Type: AWS::Serverless::Function
@@ -104,10 +214,13 @@ Resources:
             RestApiId: !Ref UserApi
             Path: /update_user
             Method: patch
+            Auth:
+              Authorizer: UserApiCognitoAuthorizer
       Environment:
         Variables:
-          DB_HOST: databaseforlambdas.czssy4oigfcr.us-east-1.rds.amazonaws.com
-          DB_NAME: chomfit
+          DB_HOST: !GetAtt RelationalDatabase.Endpoint.Address
+          DB_NAME: Chomfit
+          SECRET_NAME: !Ref MyDBSecret
 
   DisableUserFunction:
     Type: AWS::Serverless::Function
@@ -122,10 +235,13 @@ Resources:
             RestApiId: !Ref UserApi
             Path: /disable_user
             Method: patch
+            Auth:
+              Authorizer: UserApiCognitoAuthorizer
       Environment:
         Variables:
-          DB_HOST: databaseforlambdas.czssy4oigfcr.us-east-1.rds.amazonaws.com
-          DB_NAME: chomfit
+          DB_HOST: !GetAtt RelationalDatabase.Endpoint.Address
+          DB_NAME: Chomfit
+          SECRET_NAME: !Ref MyDBSecret
 
   EnableUserFunction:
     Type: AWS::Serverless::Function
@@ -140,6 +256,8 @@ Resources:
             RestApiId: !Ref UserApi
             Path: /enable_user
             Method: patch
+            Auth:
+              Authorizer: UserApiCognitoAuthorizer
       Environment:
         Variables:
           DB_HOST: databaseforlambdas.czssy4oigfcr.us-east-1.rds.amazonaws.com
@@ -178,8 +296,9 @@ Resources:
             Method: post
       Environment:
         Variables:
-          DB_HOST: databaseforlambdas.czssy4oigfcr.us-east-1.rds.amazonaws.com
-          DB_NAME: chomfit
+          DB_HOST: !GetAtt RelationalDatabase.Endpoint.Address
+          DB_NAME: Chomfit
+          SECRET_NAME: !Ref MyDBSecret
 
   FindAllExercisesFunction:
     Type: AWS::Serverless::Function
@@ -196,8 +315,9 @@ Resources:
             Method: post
       Environment:
         Variables:
-          DB_HOST: databaseforlambdas.czssy4oigfcr.us-east-1.rds.amazonaws.com
-          DB_NAME: chomfit
+          DB_HOST: !GetAtt RelationalDatabase.Endpoint.Address
+          DB_NAME: Chomfit
+          SECRET_NAME: !Ref MyDBSecret
 
   RegisterExerciseFunction:
     Type: AWS::Serverless::Function
@@ -214,8 +334,9 @@ Resources:
             Method: post
       Environment:
         Variables:
-          DB_HOST: databaseforlambdas.czssy4oigfcr.us-east-1.rds.amazonaws.com
-          DB_NAME: chomfit
+          DB_HOST: !GetAtt RelationalDatabase.Endpoint.Address
+          DB_NAME: Chomfit
+          SECRET_NAME: !Ref MyDBSecret
 
   UpdateExerciseFunction:
     Type: AWS::Serverless::Function
@@ -232,8 +353,11 @@ Resources:
             Method: patch
       Environment:
         Variables:
-          DB_HOST: databaseforlambdas.czssy4oigfcr.us-east-1.rds.amazonaws.com
-          DB_NAME: chomfit
+          DB_HOST: !GetAtt RelationalDatabase.Endpoint.Address
+          DB_NAME: Chomfit
+          SECRET_NAME: !Ref MyDBSecret
+
+
 Outputs:
   GetUserByIdApiUrl:
     Description: API Gateway endpoint URL with path get_user_by_id
