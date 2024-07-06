@@ -13,7 +13,6 @@ Globals:
     Architectures:
       - x86_64
 
-
 Resources:
   LambdaExecutionRole:
     Type: AWS::IAM::Role
@@ -46,27 +45,34 @@ Resources:
                 Resource: '*'
         - PolicyName: CognitoAccessPolicy
           PolicyDocument:
-              Version: '2012-10-17'
-              Statement:
-                - Effect: Allow
-                  Action:
-                    - cognito-idp:AdminListGroupsForUser
-                    - cognito-idp:AdminGetUser
-                    - cognito-idp:ListUsers
-                    - cognito-idp:AdminInitiateAuth
-                  Resource: arn:aws:cognito-idp:us-east-1:010446714727:userpool/us-east-1_1HAjH1fKj
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - cognito-idp:AdminListGroupsForUser
+                  - cognito-idp:AdminGetUser
+                  - cognito-idp:ListUsers
+                  - cognito-idp:AdminInitiateAuth
+                Resource: arn:aws:cognito-idp:us-east-1:010446714727:userpool/us-east-1_1HAjH1fKj
 
   RelationalDatabase:
     Type: AWS::RDS::DBInstance
     Properties:
       AllocatedStorage: '5'
       DBInstanceClass: db.t3.micro
-      AvailabilityZone: us-east-1
       DBName: Chomfit
       Engine: mysql
-      EngineVersion: '8.0.35'
-      MasterUsername: !Join [ "", [ "{{resolve:secretsmanager:", !Ref MyDBSecret, ":SecretString:username}}" ] ]
-      MasterUserPassword: !Join [ "", [ "{{resolve:secretsmanager:", !Ref MyDBSecret, ":SecretString:password}}" ] ]
+      EngineVersion: 8.0.35
+      MasterUsername: !Join
+        - ''
+        - - '{{resolve:secretsmanager:'
+          - !Ref MyDBSecret
+          - ':SecretString:username}}'
+      MasterUserPassword: !Join
+        - ''
+        - - '{{resolve:secretsmanager:'
+          - !Ref MyDBSecret
+          - ':SecretString:password}}'
       VPCSecurityGroups:
         - !GetAtt DatabaseSecurityGroup.GroupId
 
@@ -87,7 +93,7 @@ Resources:
       Description: RDS MySQL credentials
       GenerateSecretString:
         SecretStringTemplate: '{"username": "admin"}'
-        GenerateStringKey: "password"
+        GenerateStringKey: password
         PasswordLength: 16
         ExcludeCharacters: '"@/\\'
 
@@ -110,9 +116,9 @@ Resources:
         DefaultEmailOption: CONFIRM_WITH_CODE
       MfaConfiguration: 'OFF'
       AccountRecoverySetting:
-          RecoveryMechanisms:
-            - Name: verified_email
-              Priority: 1
+        RecoveryMechanisms:
+          - Name: verified_email
+            Priority: 1
 
   MyUserPoolClient:
     Type: AWS::Cognito::UserPoolClient
@@ -121,7 +127,6 @@ Resources:
       UserPoolId: !Ref UserPool
       GenerateSecret: false
       ExplicitAuthFlows:
-        - ADMIN_NO_SRP_AUTH
         - ALLOW_USER_PASSWORD_AUTH
         - ALLOW_ADMIN_USER_PASSWORD_AUTH
         - ALLOW_USER_SRP_AUTH
@@ -158,7 +163,6 @@ Resources:
       IdentitySource: method.request.header.Authorization
       ProviderARNs:
         - !GetAtt UserPool.Arn
-
 
   UserApi:
     Type: AWS::Serverless::Api
@@ -202,8 +206,6 @@ Resources:
           DB_HOST: !GetAtt RelationalDatabase.Endpoint.Address
           DB_NAME: Chomfit
           SECRET_NAME: !Ref MyDBSecret
-
-
 
   UpdateUserDataFunction:
     Type: AWS::Serverless::Function
@@ -360,7 +362,6 @@ Resources:
           DB_HOST: !GetAtt RelationalDatabase.Endpoint.Address
           DB_NAME: Chomfit
           SECRET_NAME: !Ref MyDBSecret
-
 
 Outputs:
   GetUserByIdApiUrl:
