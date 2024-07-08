@@ -160,7 +160,7 @@ Resources:
       Name: UserApi
       StageName: Prod
       Auth:
-        DefaultAuthorizer: UserApiCognitoAuthorizer
+        DefaultAuthorizer: CognitoAuthorizer
         Authorizers:
           CognitoAuthorizer:
             UserPoolArn: !GetAtt UserPool.Arn
@@ -177,17 +177,6 @@ Resources:
       Name: ExercisesApi
       StageName: Prod
 
-
-  CognitoAuthorizer:
-    Type: AWS::ApiGateway::Authorizer
-    Properties:
-      Name: UserApiCognitoAuthorizer
-      RestApiId: !Ref UserApi
-      Type: COGNITO_USER_POOLS
-      IdentitySource: method.request.header.Authorization
-      ProviderARNs:
-        - !GetAtt UserPool.Arn
-
   GetUserByIdFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -202,7 +191,7 @@ Resources:
             Path: /get_user_by_id
             Method: post
             Auth:
-              Authorizer: UserApiCognitoAuthorizer
+              Authorizer: CognitoAuthorizer
       Environment:
         Variables:
           DB_HOST: !GetAtt RelationalDatabase.Endpoint.Address
@@ -223,7 +212,7 @@ Resources:
             Path: /update_user
             Method: patch
             Auth:
-              Authorizer: UserApiCognitoAuthorizer
+              Authorizer: CognitoAuthorizer
       Environment:
         Variables:
           DB_HOST: !GetAtt RelationalDatabase.Endpoint.Address
@@ -244,7 +233,7 @@ Resources:
             Path: /disable_user
             Method: patch
             Auth:
-              Authorizer: UserApiCognitoAuthorizer
+              Authorizer: CognitoAuthorizer
       Environment:
         Variables:
           DB_HOST: !GetAtt RelationalDatabase.Endpoint.Address
@@ -265,7 +254,7 @@ Resources:
             Path: /enable_user
             Method: patch
             Auth:
-              Authorizer: UserApiCognitoAuthorizer
+              Authorizer: CognitoAuthorizer
       Environment:
         Variables:
           DB_HOST: databaseforlambdas.czssy4oigfcr.us-east-1.rds.amazonaws.com
