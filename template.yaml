@@ -171,9 +171,7 @@ Resources:
       StageName: Prod
       Auth:
         DefaultAuthorizer: UserApiCognitoAuthorizer
-        Authorizers:
-          UserApiCognitoAuthorizer:
-            UserPoolArn: !GetAtt UserPool.Arn
+
   AuthApi:
     Type: AWS::Serverless::Api
     Properties:
