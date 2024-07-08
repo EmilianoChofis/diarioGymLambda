@@ -48,11 +48,14 @@ Resources:
             Version: '2012-10-17'
             Statement:
               - Effect: Allow
+
                 Action:
                   - cognito-idp:AdminListGroupsForUser
                   - cognito-idp:AdminGetUser
                   - cognito-idp:ListUsers
                   - cognito-idp:AdminInitiateAuth
+                  - cognito-idp:AdminAddUserToGroup
+                  - cognito-idp:AdminCreateUser
                 Resource: arn:aws:cognito-idp:us-east-1:010446714727:userpool/us-east-1_1HAjH1fKj
 
   DatabaseSecurityGroup:
