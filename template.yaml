@@ -162,9 +162,8 @@ Resources:
       Auth:
         DefaultAuthorizer: UserApiCognitoAuthorizer
         Authorizers:
-          UserApiCognitoAuthorizer:
+          CognitoAuthorizer:
             UserPoolArn: !GetAtt UserPool.Arn
-
 
   AuthApi:
     Type: AWS::Serverless::Api
@@ -179,7 +178,7 @@ Resources:
       StageName: Prod
 
 
-  UserApiCognitoAuthorizer:
+  CognitoAuthorizer:
     Type: AWS::ApiGateway::Authorizer
     Properties:
       Name: UserApiCognitoAuthorizer
