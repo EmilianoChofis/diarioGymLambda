@@ -55,27 +55,6 @@ Resources:
                   - cognito-idp:AdminInitiateAuth
                 Resource: arn:aws:cognito-idp:us-east-1:010446714727:userpool/us-east-1_1HAjH1fKj
 
-  RelationalDatabase:
-    Type: AWS::RDS::DBInstance
-    Properties:
-      AllocatedStorage: '5'
-      DBInstanceClass: db.t3.micro
-      DBName: Chomfit
-      Engine: mysql
-      EngineVersion: 8.0.35
-      MasterUsername: !Join
-        - ''
-        - - '{{resolve:secretsmanager:'
-          - !Ref MyDBSecret
-          - ':SecretString:username}}'
-      MasterUserPassword: !Join
-        - ''
-        - - '{{resolve:secretsmanager:'
-          - !Ref MyDBSecret
-          - ':SecretString:password}}'
-      VPCSecurityGroups:
-        - !GetAtt DatabaseSecurityGroup.GroupId
-
   DatabaseSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
@@ -96,6 +75,27 @@ Resources:
         GenerateStringKey: password
         PasswordLength: 16
         ExcludeCharacters: '"@/\\'
+
+  RelationalDatabase:
+    Type: AWS::RDS::DBInstance
+    Properties:
+      AllocatedStorage: '5'
+      DBInstanceClass: db.t3.micro
+      DBName: Chomfit
+      Engine: mysql
+      EngineVersion: 8.0.35
+      MasterUsername: !Join
+        - ''
+        - - '{{resolve:secretsmanager:'
+          - !Ref MyDBSecret
+          - ':SecretString:username}}'
+      MasterUserPassword: !Join
+        - ''
+        - - '{{resolve:secretsmanager:'
+          - !Ref MyDBSecret
+          - ':SecretString:password}}'
+      VPCSecurityGroups:
+        - !GetAtt DatabaseSecurityGroup.GroupId
 
   UserPool:
     Type: AWS::Cognito::UserPool
@@ -154,23 +154,17 @@ Resources:
       UserPoolId: !Ref UserPool
       Description: Entrenadores
 
-  UserApiCognitoAuthorizer:
-    Type: AWS::ApiGateway::Authorizer
-    Properties:
-      Name: UserApiCognitoAuthorizer
-      RestApiId: !Ref UserApi
-      Type: COGNITO_USER_POOLS
-      IdentitySource: method.request.header.Authorization
-      ProviderARNs:
-        - !GetAtt UserPool.Arn
-
   UserApi:
     Type: AWS::Serverless::Api
     Properties:
       Name: UserApi
       StageName: Prod
       Auth:
-        DefaultAuthorizer: UserApiCognitoAuthorizer
+        DefaultAuthorizer: !Ref UserApiCognitoAuthorizer
+        Authorizers:
+          UserApiCognitoAuthorizer:
+            UserPoolArn: !GetAtt UserPool.Arn
+
 
   AuthApi:
     Type: AWS::Serverless::Api
@@ -183,6 +177,17 @@ Resources:
     Properties:
       Name: ExercisesApi
       StageName: Prod
+
+
+  UserApiCognitoAuthorizer:
+    Type: AWS::ApiGateway::Authorizer
+    Properties:
+      Name: UserApiCognitoAuthorizer
+      RestApiId: !Ref UserApi
+      Type: COGNITO_USER_POOLS
+      IdentitySource: method.request.header.Authorization
+      ProviderARNs:
+        - !GetAtt UserPool.Arn
 
   GetUserByIdFunction:
     Type: AWS::Serverless::Function
