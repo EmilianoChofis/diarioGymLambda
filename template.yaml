@@ -160,7 +160,7 @@ Resources:
       Name: UserApi
       StageName: Prod
       Auth:
-        DefaultAuthorizer: !Ref UserApiCognitoAuthorizer
+        DefaultAuthorizer: UserApiCognitoAuthorizer
         Authorizers:
           UserApiCognitoAuthorizer:
             UserPoolArn: !GetAtt UserPool.Arn
