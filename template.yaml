@@ -260,8 +260,9 @@ Resources:
               Authorizer: CognitoAuthorizer
       Environment:
         Variables:
-          DB_HOST: databaseforlambdas.czssy4oigfcr.us-east-1.rds.amazonaws.com
-          DB_NAME: chomfit
+          DB_HOST: !GetAtt RelationalDatabase.Endpoint.Address
+          DB_NAME: Chomfit
+          SECRET_NAME: !Ref MyDBSecret
 
   LoginFunction:
     Type: AWS::Serverless::Function
@@ -278,8 +279,11 @@ Resources:
             Method: post
       Environment:
         Variables:
-          DB_HOST: databaseforlambdas.czssy4oigfcr.us-east-1.rds.amazonaws.com
-          DB_NAME: chomfit
+          DB_HOST: !GetAtt RelationalDatabase.Endpoint.Address
+          DB_NAME: Chomfit
+          SECRET_NAME: !Ref MyDBSecret
+          CLIENT_ID: !Ref MyUserPoolClient
+          POOL_ID: !Ref UserPool
 
   RegisterFunction:
     Type: AWS::Serverless::Function
