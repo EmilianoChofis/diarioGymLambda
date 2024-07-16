@@ -48,7 +48,6 @@ Resources:
             Version: '2012-10-17'
             Statement:
               - Effect: Allow
-
                 Action:
                   - cognito-idp:AdminListGroupsForUser
                   - cognito-idp:AdminGetUser
@@ -56,7 +55,7 @@ Resources:
                   - cognito-idp:AdminInitiateAuth
                   - cognito-idp:AdminAddUserToGroup
                   - cognito-idp:AdminCreateUser
-                Resource: arn:aws:cognito-idp:us-east-1:010446714727:userpool/us-east-1_1HAjH1fKj
+                Resource: !GetAtt UserPool.Arn
 
   DatabaseSecurityGroup:
     Type: AWS::EC2::SecurityGroup
@@ -279,9 +278,6 @@ Resources:
             Method: post
       Environment:
         Variables:
-          DB_HOST: !GetAtt RelationalDatabase.Endpoint.Address
-          DB_NAME: Chomfit
-          SECRET_NAME: !Ref MyDBSecret
           CLIENT_ID: !GetAtt MyUserPoolClient.ClientId
           POOL_ID: !Ref UserPool
 
@@ -303,6 +299,8 @@ Resources:
           DB_HOST: !GetAtt RelationalDatabase.Endpoint.Address
           DB_NAME: Chomfit
           SECRET_NAME: !Ref MyDBSecret
+          CLIENT_ID: !GetAtt MyUserPoolClient.ClientId
+          POOL_ID: !Ref UserPool
 
   FindAllExercisesFunction:
     Type: AWS::Serverless::Function
