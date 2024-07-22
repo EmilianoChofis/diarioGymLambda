@@ -300,7 +300,6 @@ Resources:
           DB_NAME: Chomfit
           SECRET_NAME: !Ref MyDBSecret
           CLIENT_ID: !GetAtt MyUserPoolClient.ClientId
-          POOL_ID: !Ref UserPool
 
   FindAllExercisesFunction:
     Type: AWS::Serverless::Function

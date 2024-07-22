@@ -1,26 +1,30 @@
 import json
-import random
-import string
 
 import boto3
 from botocore.exceptions import ClientError
 
 
+def generate_temporary_password():
+    import random
+    import string
+    return ''.join(random.choices(string.ascii_letters + string.digits, k=8))
+
+
 def lambda_handler(event, __):
     body_parameters = json.loads(event["body"])
     email = body_parameters.get('email')
-    phone_number = body_parameters.get('phone_number')
+    username = body_parameters.get('username')
     name = body_parameters.get('name')
+    lastname = body_parameters.get('lastname')
     age = body_parameters.get('age')
     gender = body_parameters.get('gender')
-    user_name = body_parameters.get('user_name')
     password = generate_temporary_password()
-    role = "usuario"
+    role = body_parameters.get('role', 'User')
 
-    if email is None or phone_number is None or name is None or age is None or gender is None:
+    if email is None or username is None or name is None or lastname is None or age is None or gender is None:
         return {
             "statusCode": 400,
-            "body": json.dumps({"message": "missing input parameters"})
+            "body": json.dumps({"message": "Faltan campos requeridos."})
         }
 
     try:
@@ -31,7 +35,7 @@ def lambda_handler(event, __):
         # Crea el usuario con correo no verificado y contraseña temporal que se envia automaticamente a su correo
         client.admin_create_user(
             UserPoolId=user_pool_id,
-            Username=user_name,
+            Username=username,
             UserAttributes=[
                 {'Name': 'email', 'Value': email},
                 {'Name': 'email_verified', 'Value': 'false'},
@@ -41,11 +45,11 @@ def lambda_handler(event, __):
 
         client.admin_add_user_to_group(
             UserPoolId=user_pool_id,
-            Username=user_name,
+            Username=username,
             GroupName=role
         )
-
-        insert_db(email, phone_number, name, age, gender, password,user_name)
+        #insertar en la db
+        #insert_db(email, username, name, age, gender, password)
 
         return {
             'statusCode': 200,
@@ -64,25 +68,3 @@ def lambda_handler(event, __):
         }
 
 
-def insert_db(email, phone_number, name, age, gender, password, user_name):
-    print(f"insert into table value({email},{phone_number},{name},{age},{gender},{password},{user_name})")
-    return True
-
-
-def generate_temporary_password(length=12):
-    """Genera una contraseña temporal segura"""
-    special_characters = '^$*.[]{}()?-"!@#%&/\\,><\':;|_~`+= '
-    characters = string.ascii_letters + string.digits + special_characters
-
-    while True:
-        # Genera una contraseña aleatoria
-        password = ''.join(random.choice(characters) for _ in range(length))
-
-        # Verifica los criterios
-        has_digit = any(char.isdigit() for char in password)
-        has_upper = any(char.isupper() for char in password)
-        has_lower = any(char.islower() for char in password)
-        has_special = any(char in special_characters for char in password)
-
-        if has_digit and has_upper and has_lower and has_special and len(password) >= 8:
-            return password

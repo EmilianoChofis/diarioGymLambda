@@ -1,12 +1,28 @@
 import json
+import logging
 import pymysql
-from db_conn import connect_to_db
+from auth.register.insert_user_db import insert_user_db
+from auth.register.insert_user_pool import insert_user_pool
+
+
+def generate_temporary_password():
+    import random
+    import string
+    return ''.join(random.choices(string.ascii_letters + string.digits, k=8))
 
 
 def lambda_handler(event, __):
-    body = event.get('body')
+    body_parameters = json.loads(event["body"])
+    email = body_parameters.get('email')
+    username = body_parameters.get('username')
+    name = body_parameters.get('name')
+    lastname = body_parameters.get('lastname')
+    age = body_parameters.get('age')
+    gender = body_parameters.get('gender')
+    password = generate_temporary_password()
+    role = body_parameters.get('role', 'User')
 
-    if not body:
+    if not body_parameters:
         return {
             'statusCode': 400,
             'body': json.dumps({
@@ -14,55 +30,16 @@ def lambda_handler(event, __):
             })
         }
 
-    data = json.loads(body)
-
-    username = data.get('username')
-    password = data.get('password')
-    email = data.get('email')
-    role = data.get('role')
-
-    if not username or not password or not email or not role:
+    if email is None or username is None or name is None or lastname is None or age is None or gender is None:
         return {
-            'statusCode': 400,
-            'body': json.dumps({
-                "message": "Los campos username, password, email y role son requeridos."
-            })
+            "statusCode": 400,
+            "body": json.dumps({"message": "Faltan campos requeridos."})
         }
-
-    connection = connect_to_db()
-    if connection is None:
-        return {
-            'statusCode': 500,
-            'body': json.dumps({
-                "message": "Error de servidor. No se pudo conectar a la base de datos. Inténtalo más tarde."
-            })
-        }
-
-    if role not in ["admin", "user"]:
-        return {
-            'statusCode': 400,
-            'body': json.dumps({
-                "message": "El campo role debe ser 'admin' o 'user'."
-            })
-       }
 
     try:
-        with connection.cursor() as cursor:
-            sql = "SELECT * FROM users_inc WHERE username = %s OR email = %s"
-            cursor.execute(sql, (username, email))
-            result = cursor.fetchone()
-            if result:
-                return {
-                    'statusCode': 400,
-                    'body': json.dumps({
-                        "message": "El usuario ya existe."
-                    })
-                }
-
-            sql = "INSERT INTO users_inc (username, password, email, role_id) VALUES (%s, %s, %s, %s)"
-            cursor.execute(sql, (username, password, email, role))
-            connection.commit()
-
+        insert_user_pool(email, username, password, role)
+        uid = '123abcd'
+        insert_user_db(uid, name, lastname, age, gender)
         return {
             'statusCode': 201,
             'body': json.dumps({
@@ -76,13 +53,10 @@ def lambda_handler(event, __):
         }
 
     except pymysql.MySQLError as e:
-        print(f"ERROR: {e}")
+        logging.error(f"ERROR: {e}")
         return {
             'statusCode': 500,
             'body': json.dumps({
                 'message': "Error de servidor. Vuelve a intentarlo más tarde."
             })
         }
-
-    finally:
-        connection.close()
