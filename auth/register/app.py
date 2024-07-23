@@ -1,5 +1,8 @@
 import json
 import logging
+
+from botocore.exceptions import ClientError
+
 from insert_user_db import insert_user_db
 from insert_user_pool import insert_user_pool
 
@@ -50,12 +53,19 @@ def lambda_handler(event, __):
                 }
             })
         }
-
+    except ClientError as e:
+        logging.error(f"ERROR: {e}")
+        return {
+            'statusCode': 400,
+            'body': json.dumps({
+                'message': f"Error de servidor. {e}"
+            })
+        }
     except Exception as e:
         logging.error(f"ERROR: {e}")
         return {
             'statusCode': 500,
             'body': json.dumps({
-                'message': "Error de servidor. Vuelve a intentarlo más tarde."
+                'message': f"Error de servidor. {e}"
             })
         }
