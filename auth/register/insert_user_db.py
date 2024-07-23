@@ -1,6 +1,6 @@
 import logging
 import pymysql
-from auth.register.db_conn import connect_to_db
+from db_conn import connect_to_db
 
 
 def insert_user_db(uid, name, lastname, age, gender):

@@ -1,8 +1,7 @@
 import json
 import logging
-import pymysql
-from auth.register.insert_user_db import insert_user_db
-from auth.register.insert_user_pool import insert_user_pool
+from insert_user_db import insert_user_db
+from insert_user_pool import insert_user_pool
 
 
 def generate_temporary_password():
@@ -52,7 +51,7 @@ def lambda_handler(event, __):
             })
         }
 
-    except pymysql.MySQLError as e:
+    except Exception as e:
         logging.error(f"ERROR: {e}")
         return {
             'statusCode': 500,
