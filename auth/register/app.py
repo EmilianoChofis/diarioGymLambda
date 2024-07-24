@@ -12,7 +12,7 @@ from insert_user_pool import insert_user_pool
 
 
 def generate_temporary_password(length=12):
-    special_characters = '^$*.[]{}()?-"!@#%&/\\,><\':;|_~`+= '
+    special_characters = '^$*.[]{}()?-"!@#%&/\\,><\':;|_~`+='
     characters = string.ascii_letters + string.digits + special_characters
 
     while True:
@@ -42,11 +42,15 @@ def get_user_id_by_email(email):
     try:
         response = client.list_users(
             UserPoolId=user_pool_id,
-            Filter=f'email = "{email}"'
+            Filter=f'email = "{email}"',
+            AttributesToGet=[
+                'email', 'sub', 'username'
+            ]
         )
-
+        logging.info(f"Response: {response}")
         if response and response['Users']:
             user = response['Users'][0]
+            logging.info(f"User: {user}")
             uid = user['sub']
             return uid
         else:
