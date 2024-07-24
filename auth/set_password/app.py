@@ -1,12 +1,14 @@
 import json
+import os
+
 import boto3
 from botocore.exceptions import ClientError
 
 
 def lambda_handler(event, __):
     client = boto3.client('cognito-idp', region_name='us-east-1')
-    user_pool_id = "us-east-1_1HAjH1fKj"
-    client_id = "7qepoo28sam9ahbfu3bemdj843"
+    user_pool_id = os.getenv('USER_POOL_ID')
+    client_id = os.getenv('CLIENT_ID')
     try:
         # Parsea el body del evento
         body_parameters = json.loads(event["body"])

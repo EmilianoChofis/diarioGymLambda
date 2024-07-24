@@ -2,6 +2,7 @@ import json
 import pymysql
 from db_conn import connect_to_db
 
+
 def validate_user(connection, user_id):
     with connection.cursor() as cursor:
         sql = "SELECT role_id FROM users_inc WHERE id = %s"
@@ -10,6 +11,7 @@ def validate_user(connection, user_id):
         if result and result['role_id'] in ['admin', 'user']:
             return True
         return False
+
 
 def lambda_handler(event, context):
     body = event.get('body')

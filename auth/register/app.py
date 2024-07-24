@@ -34,7 +34,7 @@ class ResourceNotFound(Exception):
     pass
 
 
-def get_user_id_by_email(username):
+def get_user_id_by_username(username):
     client = boto3.client('cognito-idp', region_name='us-east-1')
     user_pool_id = os.getenv('USER_POOL_ID')
 
@@ -93,7 +93,7 @@ def lambda_handler(event, __):
 
     try:
         insert_user_pool(email, username, password, role)
-        uid = get_user_id_by_email(username)
+        uid = get_user_id_by_username(username)
         insert_user_db(uid, name, lastname, age, gender)
         return {
             'statusCode': 201,

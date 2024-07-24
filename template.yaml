@@ -302,6 +302,24 @@ Resources:
           CLIENT_ID: !GetAtt MyUserPoolClient.ClientId
           USER_POOL_ID: !Ref UserPool
 
+  SetPasswordFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: auth/set_password/
+      Handler: app.lambda_handler
+      Role: !GetAtt LambdaExecutionRole.Arn
+      Events:
+        SetPassword:
+          Type: Api
+          Properties:
+            RestApiId: !Ref AuthApi
+            Path: /set-password
+            Method: patch
+      Environment:
+        Variables:
+          CLIENT_ID: !GetAtt MyUserPoolClient.ClientId
+          USER_POOL_ID: !Ref UserPool
+
   FindAllExercisesFunction:
     Type: AWS::Serverless::Function
     Properties:
