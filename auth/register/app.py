@@ -42,7 +42,7 @@ def get_user_id_by_email(email):
     try:
         response = client.list_users(
             UserPoolId=user_pool_id,
-            Filter=f'email = "{email}"',
+            Filter=f'email=\"{email}\"',
             AttributesToGet=[
                 'email', 'sub', 'username'
             ]
@@ -51,8 +51,18 @@ def get_user_id_by_email(email):
         if response and response['Users']:
             user = response['Users'][0]
             logging.info(f"User: {user}")
-            uid = user['sub']
-            return uid
+
+            # Buscar el atributo 'sub' en la lista de atributos
+            uid = None
+            for attribute in user['Attributes']:
+                if attribute['Name'] == 'sub':
+                    uid = attribute['Value']
+                    break
+
+            if uid:
+                return uid
+            else:
+                raise ResourceNotFound("No se encontró el usuario.")
         else:
             raise ResourceNotFound("No se encontró el usuario.")
     except client.exceptions.ClientError as e:
