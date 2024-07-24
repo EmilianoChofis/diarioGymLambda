@@ -34,18 +34,14 @@ class ResourceNotFound(Exception):
     pass
 
 
-def get_user_id_by_email(email):
+def get_user_id_by_email(username):
     client = boto3.client('cognito-idp', region_name='us-east-1')
-
     user_pool_id = os.getenv('USER_POOL_ID')
 
     try:
         response = client.list_users(
             UserPoolId=user_pool_id,
-            Filter=f'email=\"{email}\"',
-            AttributesToGet=[
-                'email', 'sub', 'username'
-            ]
+            Filter=f"username=\"{username}\"",
         )
         logging.info(f"Response: {response}")
         if response and response['Users']:
@@ -97,7 +93,7 @@ def lambda_handler(event, __):
 
     try:
         insert_user_pool(email, username, password, role)
-        uid = get_user_id_by_email(email)
+        uid = get_user_id_by_email(username)
         insert_user_db(uid, name, lastname, age, gender)
         return {
             'statusCode': 201,
