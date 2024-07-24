@@ -1,8 +1,10 @@
 import json
 import logging
+import os
 import random
 import string
 
+import boto3
 from botocore.exceptions import ClientError
 
 from insert_user_db import insert_user_db
@@ -25,6 +27,34 @@ def generate_temporary_password(length=12):
 
         if has_digit and has_upper and has_lower and has_special and len(password) >= 8:
             return password
+
+
+class ResourceNotFound(Exception):
+    """Raised when a resource is not found in the database."""
+    pass
+
+
+def get_user_id_by_email(email):
+    client = boto3.client('cognito-idp', region_name='us-east-1')
+
+    user_pool_id = os.getenv('USER_POOL_ID')
+
+    try:
+        response = client.list_users(
+            UserPoolId=user_pool_id,
+            Filter=f'email = "{email}"'
+        )
+
+        if response and response['Users']:
+            user = response['Users'][0]
+            uid = user['sub']
+            return uid
+        else:
+            raise ResourceNotFound("No se encontró el usuario.")
+    except client.exceptions.ClientError as e:
+        logging.error(f"Error al buscar el usuario: {e}")
+        raise e
+
 
 def lambda_handler(event, __):
     body_parameters = json.loads(event["body"])
@@ -53,17 +83,20 @@ def lambda_handler(event, __):
 
     try:
         insert_user_pool(email, username, password, role)
-        uid = '123abcd'
+        uid = get_user_id_by_email(email)
         insert_user_db(uid, name, lastname, age, gender)
         return {
             'statusCode': 201,
             'body': json.dumps({
                 "message": "Usuario registrado correctamente.",
-                "data": {
-                    "username": username,
-                    "email": email,
-                    "role": role
-                }
+            })
+        }
+    except ResourceNotFound as e:
+        logging.error(f"ERROR: {e}")
+        return {
+            'statusCode': 404,
+            'body': json.dumps({
+                'message': f"Recurso no encontrado. {e}"
             })
         }
     except ClientError as e:
@@ -71,7 +104,7 @@ def lambda_handler(event, __):
         return {
             'statusCode': 400,
             'body': json.dumps({
-                'message': f"Error de servidor. {e}"
+                'message': f"Error en la conexión. {e}"
             })
         }
     except Exception as e:
