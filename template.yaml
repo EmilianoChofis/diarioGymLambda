@@ -172,6 +172,12 @@ Resources:
     Properties:
       Name: AuthApi
       StageName: Prod
+      Cors:
+        AllowMethods: "'POST'"
+        AllowHeaders: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+        AllowOrigin: "'*'"
+        MaxAge: "'600'"
+        AllowCredentials: true
 
   ExercisesApi:
     Type: AWS::Serverless::Api
