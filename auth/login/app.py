@@ -38,8 +38,15 @@ def lambda_handler(event, __):
         if user_groups['Groups']:
             role = user_groups['Groups'][0]['GroupName']  # Asumiendo un usuario pertenece a un solo grupo
 
+
         return {
             'statusCode': 200,
+            'headers': {
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Credentials': 'true',
+                'Access-Control-Allow-Headers': 'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token',
+                'Access-Control-Allow-Methods': 'OPTIONS,POST'
+            },
             'body': json.dumps({
                 'id_token': id_token,
                 'access_token': access_token,
@@ -47,14 +54,25 @@ def lambda_handler(event, __):
                 'role': role
             })
         }
-
     except ClientError as e:
         return {
             'statusCode': 400,
+            'headers': {
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Credentials': 'true',
+                'Access-Control-Allow-Headers': 'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token',
+                'Access-Control-Allow-Methods': 'OPTIONS,POST'
+            },
             'body': json.dumps({"error_message": e.response['Error']['Message']})
         }
     except Exception as e:
         return {
             'statusCode': 500,
+            'headers': {
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Credentials': 'true',
+                'Access-Control-Allow-Headers': 'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token',
+                'Access-Control-Allow-Methods': 'OPTIONS,POST'
+            },
             'body': json.dumps({"error_message": str(e)})
         }
