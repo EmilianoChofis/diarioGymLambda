@@ -56,6 +56,39 @@ Resources:
                   - cognito-idp:AdminAddUserToGroup
                   - cognito-idp:AdminCreateUser
                 Resource: !GetAtt UserPool.Arn
+        - PolicyName: RDSProxyAccessPolicy
+          PolicyDocument:
+              Version: '2012-10-17'
+              Statement:
+                - Effect: Allow
+                  Action:
+                    - rds-db:connect
+                  Resource: !Sub arn:aws:rds-db:${AWS::Region}:${AWS::AccountId}:dbuser:*/admin
+                - Effect: Allow
+                  Action:
+                    - rds:DescribeDBProxies
+                    - rds:DescribeDBProxyTargets
+                  Resource: '*'
+
+  MyRdsProxyRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: rds.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: RDSProxySecretsManagerPolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - secretsmanager:GetSecretValue
+                Resource: !Ref MyDBSecret
 
   DatabaseSecurityGroup:
     Type: AWS::EC2::SecurityGroup
