@@ -139,6 +139,17 @@ Resources:
       EnableDnsSupport: true
       EnableDnsHostnames: true
 
+  ChomfitSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Allow RDS Proxy access
+      VpcId: !Ref ChomfitVPC
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 3306
+          ToPort: 3306
+          CidrIp: 0.0.0.0/0
+
   SubnetA:
       Type: AWS::EC2::Subnet
       Properties:
@@ -168,7 +179,7 @@ Resources:
           - !Ref SubnetA
           - !Ref SubnetB
         VpcSecurityGroupIds:
-          - !Ref ChomfitVPC
+          - !Ref ChomfitSecurityGroup
 
   ProxyTargetGroup:
       Type: AWS::RDS::DBProxyTargetGroup
