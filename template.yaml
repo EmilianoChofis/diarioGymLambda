@@ -168,7 +168,7 @@ Resources:
           - !Ref SubnetA
           - !Ref SubnetB
         VpcSecurityGroupIds:
-          - !Ref MySecurityGroup
+          - !Ref ChomfitVPC
 
   ProxyTargetGroup:
       Type: AWS::RDS::DBProxyTargetGroup
