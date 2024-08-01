@@ -196,7 +196,7 @@ Resources:
   DBProxyEndpoint:
     Type: AWS::RDS::DBProxyEndpoint
     Properties:
-      DBProxyEndpointName: !Ref endpoint
+      DBProxyEndpointName: db-proxy-endpoint
       DBProxyName: !Ref MyRdsProxy
       VpcSubnetIds:
         - !Ref SubnetA
