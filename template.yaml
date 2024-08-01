@@ -193,6 +193,17 @@ Resources:
           MaxIdleConnectionsPercent: 50
           ConnectionBorrowTimeout: 120
 
+  DBProxyEndpoint:
+    Type: AWS::RDS::DBProxyEndpoint
+    Properties:
+      DBProxyEndpointName: !Ref endpoint
+      DBProxyName: !Ref MyRdsProxy
+      VpcSubnetIds:
+        - !Ref SubnetA
+        - !Ref SubnetB
+      VpcSecurityGroupIds:
+        - !Ref ChomfitSecurityGroup
+      TargetRole: READ_WRITE
 
   UserPool:
     Type: AWS::Cognito::UserPool
@@ -297,7 +308,7 @@ Resources:
               Authorizer: CognitoAuthorizer
       Environment:
         Variables:
-          DB_HOST: !GetAtt MyRdsProxy.Endpoint.Address
+          DB_HOST: !Ref DBProxyEndpoint
           DB_NAME: Chomfit
           SECRET_NAME: !Ref MyDBSecret
 
@@ -318,7 +329,7 @@ Resources:
               Authorizer: CognitoAuthorizer
       Environment:
         Variables:
-          DB_HOST: !GetAtt MyRdsProxy.Endpoint.Address
+          DB_HOST: !Ref DBProxyEndpoint
           DB_NAME: Chomfit
           SECRET_NAME: !Ref MyDBSecret
 
@@ -339,7 +350,7 @@ Resources:
               Authorizer: CognitoAuthorizer
       Environment:
         Variables:
-          DB_HOST: !GetAtt MyRdsProxy.Endpoint.Address
+          DB_HOST: !Ref DBProxyEndpoint
           DB_NAME: Chomfit
           SECRET_NAME: !Ref MyDBSecret
 
@@ -360,7 +371,7 @@ Resources:
               Authorizer: CognitoAuthorizer
       Environment:
         Variables:
-          DB_HOST: !GetAtt MyRdsProxy.Endpoint.Address
+          DB_HOST: !Ref DBProxyEndpoint
           DB_NAME: Chomfit
           SECRET_NAME: !Ref MyDBSecret
 
@@ -397,7 +408,7 @@ Resources:
             Method: post
       Environment:
         Variables:
-          DB_HOST: !GetAtt MyRdsProxy.Endpoint.Address
+          DB_HOST: !Ref DBProxyEndpoint
           DB_NAME: Chomfit
           SECRET_NAME: !Ref MyDBSecret
           CLIENT_ID: !GetAtt MyUserPoolClient.ClientId
@@ -436,7 +447,7 @@ Resources:
             Method: post
       Environment:
         Variables:
-          DB_HOST: !GetAtt MyRdsProxy.Endpoint.Address
+          DB_HOST: !Ref DBProxyEndpoint
           DB_NAME: Chomfit
           SECRET_NAME: !Ref MyDBSecret
 
@@ -455,7 +466,7 @@ Resources:
             Method: post
       Environment:
         Variables:
-          DB_HOST: !GetAtt MyRdsProxy.Endpoint.Address
+          DB_HOST: !Ref DBProxyEndpoint
           DB_NAME: Chomfit
           SECRET_NAME: !Ref MyDBSecret
 
@@ -474,7 +485,7 @@ Resources:
             Method: patch
       Environment:
         Variables:
-          DB_HOST: !GetAtt MyRdsProxy.Endpoint.Address
+          DB_HOST: !Ref DBProxyEndpoint
           DB_NAME: Chomfit
           SECRET_NAME: !Ref MyDBSecret
 
@@ -554,3 +565,11 @@ Outputs:
   MyRdsProxyArn:
     Description: RDS Proxy ARN
     Value: !GetAtt MyRdsProxy.Arn
+  DBProxyEndpointIdentifier:
+    Description: RDS Proxy Endpoint Identifier
+    Value: !GetAtt DBProxyEndpoint.DBProxyEndpointName
+  DBProxyEndpointArn:
+    Description: RDS Proxy Endpoint ARN
+    Value: !GetAtt DBProxyEndpoint.Arn
+
+
