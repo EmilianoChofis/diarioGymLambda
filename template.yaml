@@ -10,8 +10,6 @@ Globals:
     Timeout: 120
     MemorySize: 256
     Runtime: python3.12
-    Architectures:
-      - x86_6
 
 Resources:
   LambdaExecutionRole:
