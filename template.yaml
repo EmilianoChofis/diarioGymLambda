@@ -11,7 +11,7 @@ Globals:
     MemorySize: 256
     Runtime: python3.12
     Architectures:
-      - x86_64
+      - x86_6
 
 Resources:
   LambdaExecutionRole:
@@ -56,39 +56,6 @@ Resources:
                   - cognito-idp:AdminAddUserToGroup
                   - cognito-idp:AdminCreateUser
                 Resource: !GetAtt UserPool.Arn
-        - PolicyName: RDSProxyAccessPolicy
-          PolicyDocument:
-              Version: '2012-10-17'
-              Statement:
-                - Effect: Allow
-                  Action:
-                    - rds-db:connect
-                  Resource: !Sub arn:aws:rds-db:${AWS::Region}:${AWS::AccountId}:dbuser:*/admin
-                - Effect: Allow
-                  Action:
-                    - rds:DescribeDBProxies
-                    - rds:DescribeDBProxyTargets
-                  Resource: '*'
-
-  MyRdsProxyRole:
-    Type: AWS::IAM::Role
-    Properties:
-      AssumeRolePolicyDocument:
-        Version: '2012-10-17'
-        Statement:
-          - Effect: Allow
-            Principal:
-              Service: rds.amazonaws.com
-            Action: sts:AssumeRole
-      Policies:
-        - PolicyName: RDSProxySecretsManagerPolicy
-          PolicyDocument:
-            Version: '2012-10-17'
-            Statement:
-              - Effect: Allow
-                Action:
-                  - secretsmanager:GetSecretValue
-                Resource: !Ref MyDBSecret
 
   DatabaseSecurityGroup:
     Type: AWS::EC2::SecurityGroup
@@ -131,79 +98,6 @@ Resources:
           - ':SecretString:password}}'
       VPCSecurityGroups:
         - !GetAtt DatabaseSecurityGroup.GroupId
-
-  ChomfitVPC:
-    Type: AWS::EC2::VPC
-    Properties:
-      CidrBlock: 10.0.0.0/16
-      EnableDnsSupport: true
-      EnableDnsHostnames: true
-
-  ChomfitSecurityGroup:
-    Type: AWS::EC2::SecurityGroup
-    Properties:
-      GroupDescription: Allow RDS Proxy access
-      VpcId: !Ref ChomfitVPC
-      SecurityGroupIngress:
-        - IpProtocol: tcp
-          FromPort: 3306
-          ToPort: 3306
-          CidrIp: 0.0.0.0/0
-
-  SubnetA:
-      Type: AWS::EC2::Subnet
-      Properties:
-        VpcId: !Ref ChomfitVPC
-        CidrBlock: 10.0.1.0/24
-        AvailabilityZone: us-east-1a
-        MapPublicIpOnLaunch: true
-
-  SubnetB:
-      Type: AWS::EC2::Subnet
-      Properties:
-        VpcId: !Ref ChomfitVPC
-        CidrBlock: 10.0.2.0/24
-        AvailabilityZone: us-east-1b
-        MapPublicIpOnLaunch: true
-
-  MyRdsProxy:
-      Type: AWS::RDS::DBProxy
-      Properties:
-        DBProxyName: chomfit-rds-proxy
-        EngineFamily: MYSQL
-        Auth:
-          - AuthScheme: SECRETS
-            SecretArn: !Ref MyDBSecret
-        RoleArn: !GetAtt MyRdsProxyRole.Arn
-        VpcSubnetIds:
-          - !Ref SubnetA
-          - !Ref SubnetB
-        VpcSecurityGroupIds:
-          - !Ref ChomfitSecurityGroup
-
-  ProxyTargetGroup:
-      Type: AWS::RDS::DBProxyTargetGroup
-      Properties:
-        DBProxyName: !Ref MyRdsProxy
-        DBInstanceIdentifiers:
-          - !Ref RelationalDatabase
-        TargetGroupName: default
-        ConnectionPoolConfigurationInfo:
-          MaxConnectionsPercent: 100
-          MaxIdleConnectionsPercent: 50
-          ConnectionBorrowTimeout: 120
-
-  DBProxyEndpoint:
-    Type: AWS::RDS::DBProxyEndpoint
-    Properties:
-      DBProxyEndpointName: db-proxy-endpoint
-      DBProxyName: !Ref MyRdsProxy
-      VpcSubnetIds:
-        - !Ref SubnetA
-        - !Ref SubnetB
-      VpcSecurityGroupIds:
-        - !Ref ChomfitSecurityGroup
-      TargetRole: READ_WRITE
 
   UserPool:
     Type: AWS::Cognito::UserPool
@@ -308,7 +202,7 @@ Resources:
               Authorizer: CognitoAuthorizer
       Environment:
         Variables:
-          DB_HOST: !Ref DBProxyEndpoint
+          DB_HOST: !GetAtt RelationalDatabase.Endpoint.Address
           DB_NAME: Chomfit
           SECRET_NAME: !Ref MyDBSecret
 
@@ -329,7 +223,7 @@ Resources:
               Authorizer: CognitoAuthorizer
       Environment:
         Variables:
-          DB_HOST: !Ref DBProxyEndpoint
+          DB_HOST: !GetAtt RelationalDatabase.Endpoint.Address
           DB_NAME: Chomfit
           SECRET_NAME: !Ref MyDBSecret
 
@@ -350,7 +244,7 @@ Resources:
               Authorizer: CognitoAuthorizer
       Environment:
         Variables:
-          DB_HOST: !Ref DBProxyEndpoint
+          DB_HOST: !GetAtt RelationalDatabase.Endpoint.Address
           DB_NAME: Chomfit
           SECRET_NAME: !Ref MyDBSecret
 
@@ -371,7 +265,7 @@ Resources:
               Authorizer: CognitoAuthorizer
       Environment:
         Variables:
-          DB_HOST: !Ref DBProxyEndpoint
+          DB_HOST: !GetAtt RelationalDatabase.Endpoint.Address
           DB_NAME: Chomfit
           SECRET_NAME: !Ref MyDBSecret
 
@@ -408,7 +302,7 @@ Resources:
             Method: post
       Environment:
         Variables:
-          DB_HOST: !Ref DBProxyEndpoint
+          DB_HOST: !GetAtt RelationalDatabase.Endpoint.Address
           DB_NAME: Chomfit
           SECRET_NAME: !Ref MyDBSecret
           CLIENT_ID: !GetAtt MyUserPoolClient.ClientId
@@ -447,7 +341,7 @@ Resources:
             Method: post
       Environment:
         Variables:
-          DB_HOST: !Ref DBProxyEndpoint
+          DB_HOST: !GetAtt RelationalDatabase.Endpoint.Address
           DB_NAME: Chomfit
           SECRET_NAME: !Ref MyDBSecret
 
@@ -466,7 +360,7 @@ Resources:
             Method: post
       Environment:
         Variables:
-          DB_HOST: !Ref DBProxyEndpoint
+          DB_HOST: !GetAtt RelationalDatabase.Endpoint.Address
           DB_NAME: Chomfit
           SECRET_NAME: !Ref MyDBSecret
 
@@ -485,7 +379,7 @@ Resources:
             Method: patch
       Environment:
         Variables:
-          DB_HOST: !Ref DBProxyEndpoint
+          DB_HOST: !GetAtt RelationalDatabase.Endpoint.Address
           DB_NAME: Chomfit
           SECRET_NAME: !Ref MyDBSecret
 
@@ -526,12 +420,6 @@ Outputs:
   RegisterFunctionArn:
     Description: Register Lambda Function ARN
     Value: !GetAtt RegisterFunction.Arn
-  SetPasswordApiUrl:
-    Description: API Gateway endpoint URL with path set-password
-    Value: !Sub https://${AuthApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/set-password
-  SetPasswordFunctionArn:
-    Description: Set password Lambda Function ARN
-    Value: !GetAtt SetPasswordFunction.Arn
   FindAllExercisesApiUrl:
     Description: API Gateway endpoint URL with path find_all_exercises
     Value: !Sub https://${ExercisesApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/find_all_exercises
@@ -553,23 +441,3 @@ Outputs:
   LambdaExecutionRoleArn:
     Description: Lambda Execution Role ARN
     Value: !GetAtt LambdaExecutionRole.Arn
-  ProxyTargetGroupIdentifier:
-    Description: Proxy Target Group Identifier
-    Value: !GetAtt ProxyTargetGroup.ProxyTargetGroupIdentifier
-  ProxyTargetGroupArn:
-    Description: Proxy Target Group ARN
-    Value: !GetAtt ProxyTargetGroup.Arn
-  MyRdsProxyIdentifier:
-    Description: RDS Proxy Identifier
-    Value: !GetAtt MyRdsProxy.DBProxyName
-  MyRdsProxyArn:
-    Description: RDS Proxy ARN
-    Value: !GetAtt MyRdsProxy.Arn
-  DBProxyEndpointIdentifier:
-    Description: RDS Proxy Endpoint Identifier
-    Value: !GetAtt DBProxyEndpoint.DBProxyEndpointName
-  DBProxyEndpointArn:
-    Description: RDS Proxy Endpoint ARN
-    Value: !GetAtt DBProxyEndpoint.Arn
-
-
