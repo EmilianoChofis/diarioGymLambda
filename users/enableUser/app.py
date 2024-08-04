@@ -1,10 +1,37 @@
 import json
 from db_conn import connect_to_db
-
+import jwt
 
 def lambda_handler(event, __):
     body = event.get('body')
+    headers = event.get('headers')
 
+    access_token = headers.get('Authorization')
+
+    if not access_token or not access_token.startswith("Bearer "):
+        return {
+            'statusCode': 401,
+            'body': json.dumps({
+                "message": "No tienes permisos para realizar esta acción."
+            })
+        }
+
+    access_token = access_token.split(" ")[1]
+
+    claims = jwt.decode(access_token, options={"verify_signature": False})
+    print(claims)
+
+    # Validar rol
+    role = claims.get('cognito:groups')
+    print(role)
+
+    if not role or 'administradores' not in role:
+        return {
+            'statusCode': 401,
+            'body': json.dumps({
+                "message": "No tienes permisos para realizar esta acción."
+            })
+        }
     if not body:
         return {
             'statusCode': 400,
