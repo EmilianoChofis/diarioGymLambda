@@ -183,6 +183,27 @@ Resources:
       Name: ExercisesApi
       StageName: Prod
 
+  GetAllUsersFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: users/getAllUsers/
+      Handler: app.lambda_handler
+      Role: !GetAtt LambdaExecutionRole.Arn
+      Events:
+        GetUserById:
+          Type: Api
+          Properties:
+            RestApiId: !Ref UserApi
+            Path: /get_all_users
+            Method: get
+            Auth:
+              Authorizer: CognitoAuthorizer
+      Environment:
+        Variables:
+          DB_HOST: !GetAtt RelationalDatabase.Endpoint.Address
+          DB_NAME: Chomfit
+          SECRET_NAME: !Ref MyDBSecret
+
   GetUserByIdFunction:
     Type: AWS::Serverless::Function
     Properties:
