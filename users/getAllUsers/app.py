@@ -7,7 +7,7 @@ from botocore.exceptions import ClientError
 from db_conn import connect_to_db
 
 
-def lamda_handler(event, __):
+def lambda_handler(event, __):
     try:
         headers = event.get('headers')
 
