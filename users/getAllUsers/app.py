@@ -58,7 +58,7 @@ def lambda_handler(event, __):
             }
 
         with connection.cursor() as cursor:
-            sql = "SELECT * FROM users_inc"
+            sql = "SELECT * FROM users"
             cursor.execute(sql)
             result = cursor.fetchall()
             connection.commit()
