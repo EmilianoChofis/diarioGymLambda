@@ -53,3 +53,21 @@ def user_exists_in_cognito(username):
     except ClientError as e:
         logging.error(f"ERROR: {e}")
         raise e
+
+
+def email_exists_in_cognito(email):
+    client = boto3.client('cognito-idp', region_name='us-east-1')
+    user_pool_id = os.getenv('USER_POOL_ID')
+
+    try:
+        response = client.list_users(
+            UserPoolId=user_pool_id,
+            Filter=f"email=\"{email}\""
+        )
+        if response['Users']:
+            return True
+        else:
+            return False
+    except ClientError as e:
+        logging.error(f"ERROR: {e}")
+        raise e
