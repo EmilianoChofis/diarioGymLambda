@@ -41,7 +41,7 @@ def get_user_id_by_email(email):
     try:
         response = client.list_users(
             UserPoolId=user_pool_id,
-            Filter=f'email = "{email}"',
+            Filter=f"email=\"{email}\""
         )
         logging.error(f"Response: {response}")
         if response and response['Users']:

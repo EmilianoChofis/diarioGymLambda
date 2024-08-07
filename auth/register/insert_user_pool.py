@@ -64,6 +64,7 @@ def email_exists_in_cognito(email):
             UserPoolId=user_pool_id,
             Filter=f"email=\"{email}\""
         )
+        logging.error(f"Response: {response}")
         if response['Users']:
             return True
         else:
