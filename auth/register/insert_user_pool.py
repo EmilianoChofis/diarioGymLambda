@@ -36,3 +36,20 @@ def insert_user_pool(email, username, password, role):
     except Exception as e:
         logging.error(f"ERROR: {e}")
         raise e
+
+
+def user_exists_in_cognito(username):
+    client = boto3.client('cognito-idp', region_name='us-east-1')
+    user_pool_id = os.getenv('USER_POOL_ID')
+
+    try:
+        response = client.admin_get_user(
+            UserPoolId=user_pool_id,
+            Username=username
+        )
+        return True
+    except client.exceptions.UserNotFoundException:
+        return False
+    except ClientError as e:
+        logging.error(f"ERROR: {e}")
+        raise e

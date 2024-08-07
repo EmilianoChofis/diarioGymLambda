@@ -16,3 +16,18 @@ def insert_user_db(uid, name, lastname, age, gender):
         raise e
     finally:
         connection.close()
+
+
+def user_exists_in_db(username):
+    connection = connect_to_db()
+    try:
+        with connection.cursor() as cursor:
+            sql = "SELECT COUNT(*) FROM users WHERE username = %s"
+            cursor.execute(sql, (username,))
+            result = cursor.fetchone()
+            return result[0] > 0
+    except pymysql.MySQLError as e:
+        logging.error(f"ERROR: {e}")
+        raise e
+    finally:
+        connection.close()

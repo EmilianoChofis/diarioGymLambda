@@ -7,8 +7,8 @@ import string
 import boto3
 from botocore.exceptions import ClientError
 
-from insert_user_db import insert_user_db
-from insert_user_pool import insert_user_pool
+from insert_user_db import insert_user_db, user_exists_in_db
+from insert_user_pool import insert_user_pool, user_exists_in_cognito
 
 
 def generate_temporary_password(length=12):
@@ -92,8 +92,24 @@ def lambda_handler(event, __):
         }
 
     try:
+        if user_exists_in_cognito(username):
+            return {
+                'statusCode': 409,
+                'body': json.dumps({
+                    "message": "El usuario ya existe en Cognito."
+                })
+            }
+
+        if user_exists_in_db(username):
+            return {
+                'statusCode': 409,
+                'body': json.dumps({
+                    "message": "El usuario ya existe en la base de datos."
+                })
+            }
+
         insert_user_pool(email, username, password, role)
-        uid = get_user_id_by_email(username)
+        uid = get_user_id_by_email(email)
         insert_user_db(uid, name, lastname, age, gender)
         return {
             'statusCode': 201,
