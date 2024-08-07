@@ -41,12 +41,12 @@ def get_user_id_by_email(email):
     try:
         response = client.list_users(
             UserPoolId=user_pool_id,
-            Filter=f"email=\"{email}\"",
+            Filter=f'email = "{email}"',
         )
-        logging.info(f"Response: {response}")
+        logging.error(f"Response: {response}")
         if response and response['Users']:
             user = response['Users'][0]
-            logging.info(f"User: {user}")
+            logging.error(f"User: {user}")
 
             # Buscar el atributo 'sub' en la lista de atributos
             uid = None
@@ -64,6 +64,7 @@ def get_user_id_by_email(email):
     except client.exceptions.ClientError as e:
         logging.error(f"Error al buscar el usuario: {e}")
         raise e
+
 
 
 def lambda_handler(event, __):
