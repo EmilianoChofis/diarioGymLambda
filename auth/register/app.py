@@ -34,37 +34,34 @@ class ResourceNotFound(Exception):
     pass
 
 
-def get_user_id_by_email(email):
+def get_user_id_by_username(username):
     client = boto3.client('cognito-idp', region_name='us-east-1')
     user_pool_id = os.getenv('USER_POOL_ID')
 
     try:
-        response = client.list_users(
+        response = client.admin_get_user(
             UserPoolId=user_pool_id,
-            Filter=f"email=\"{email}\""
+            Username=username
         )
         logging.error(f"Response: {response}")
-        if response and response['Users']:
-            user = response['Users'][0]
-            logging.error(f"User: {user}")
+        user_attributes = response['UserAttributes']
 
-            # Buscar el atributo 'sub' en la lista de atributos
-            uid = None
-            for attribute in user['Attributes']:
-                if attribute['Name'] == 'sub':
-                    uid = attribute['Value']
-                    break
+        # Buscar el atributo 'sub' en la lista de atributos
+        uid = None
+        for attribute in user_attributes:
+            if attribute['Name'] == 'sub':
+                uid = attribute['Value']
+                break
 
-            if uid:
-                return uid
-            else:
-                raise ResourceNotFound("No se encontró el uuid del usuario.")
+        if uid:
+            return uid
         else:
-            raise ResourceNotFound("No se encontró el usuario.")
+            raise ResourceNotFound("No se encontró el uuid del usuario.")
+    except client.exceptions.UserNotFoundException:
+        raise ResourceNotFound("No se encontró el usuario.")
     except client.exceptions.ClientError as e:
         logging.error(f"Error al buscar el usuario: {e}")
         raise e
-
 
 
 def lambda_handler(event, __):
@@ -110,7 +107,7 @@ def lambda_handler(event, __):
             }
 
         insert_user_pool(email, username, password, role)
-        uid = get_user_id_by_email(email)
+        uid = get_user_id_by_username(username)
         insert_user_db(uid, name, lastname, age, gender)
         return {
             'statusCode': 201,
