@@ -3,7 +3,7 @@ import jwt
 
 def validate_token(event):
     """
-    Valida el token de acceso del usuario y devuelve el token decodificado o un mensaje de error.
+    Valida el token de acceso del usuario y devuelve los claims decodificados o un mensaje de error.
 
     :param event: Evento de Lambda
     :return: Tuple (claims, error_message) - Claims si el token es válido, error_message si no lo es.
@@ -21,7 +21,6 @@ def validate_token(event):
     access_token = access_token.split(" ")[1]
 
     try:
-        # Decodifica el token sin verificar la firma (para desarrollo/testing)
         claims = jwt.decode(access_token, options={"verify_signature": False})
         return claims, None
     except jwt.ExpiredSignatureError:
@@ -32,23 +31,19 @@ def validate_token(event):
         return None, f"Error al validar el token: {e}"
 
 
-def validate_user_role(access_token, required_roles):
+def validate_user_role(claims, required_roles):
     """
-    Valida si el usuario tiene el rol requerido.
+    Valida si el usuario tiene al menos uno de los roles requeridos.
 
-    :param access_token: Token de acceso de Cognito
-    :param required_roles: Roles requerido (por ejemplo, 'administradores')
-    :return: True si el usuario tiene el rol requerido, False en caso contrario
+    :param claims: Claims decodificados del token
+    :param required_roles: Lista de roles requeridos (ejemplo: ['Admin', 'User'])
+    :return: True si el usuario tiene al menos uno de los roles requeridos, False en caso contrario
     """
     try:
-        claims = jwt.decode(access_token, options={"verify_signature": False})
+        roles = claims.get('cognito:groups', [])
 
-        roles = claims.get('cognito:groups')
-
-        if roles is None:
-            return False
-
-        if required_roles in roles:
+        # Verificar si alguno de los roles requeridos está en los roles del usuario
+        if any(role in roles for role in required_roles):
             return True
         else:
             return False

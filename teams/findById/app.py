@@ -21,7 +21,7 @@ def lambda_handler(event, __):
 
         if not validate_user_role(claims, ['Couch', 'Admin', 'User']):
             return {
-                'statusCode': 401,
+                'statusCode': 403,
                 'body': json.dumps({
                     "message": "No tienes permisos para realizar esta acción."
                 })
@@ -56,9 +56,9 @@ def lambda_handler(event, __):
             }
 
         return {
-            'statusCode': 201,
+            'statusCode': 200,
             'body': json.dumps({
-                "message": "Usuario registrado correctamente.",
+                "message": "Equipo encontrado",
                 "data": team
             })
         }
