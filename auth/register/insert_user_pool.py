@@ -47,6 +47,7 @@ def user_exists_in_cognito(username):
             UserPoolId=user_pool_id,
             Username=username
         )
+        logging.error(f"Response: {response}")
         return True
     except client.exceptions.UserNotFoundException:
         return False
