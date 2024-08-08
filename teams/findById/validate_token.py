@@ -1,6 +1,5 @@
 import jwt
 
-import jwt
 
 def validate_token(event):
     """
