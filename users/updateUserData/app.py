@@ -1,5 +1,8 @@
 import json
+import logging
 import pymysql
+
+from botocore.exceptions import ClientError
 from db_conn import connect_to_db
 
 
@@ -106,12 +109,21 @@ def lambda_handler(event, __):
             })
         }
 
-    except pymysql.MySQLError as e:
-        print(f"ERROR: {e}")
+    except ClientError as e:
+        logging.error(f"ERROR: {e}")
+        return {
+            'statusCode': 400,
+            'body': json.dumps({
+                'message': f"Error en la conexión. {e}"
+            })
+        }
+
+    except Exception as e:
+        logging.error(f"ERROR: {e}")
         return {
             'statusCode': 500,
             'body': json.dumps({
-                'message': "Error de servidor. Vuelve a intentarlo más tarde."
+                'message': f"Error de servidor. {e}"
             })
         }
 

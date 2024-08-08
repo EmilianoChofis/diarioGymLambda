@@ -1,4 +1,7 @@
 import json
+import logging
+
+from botocore.exceptions import ClientError
 from db_conn import connect_to_db
 
 
@@ -14,7 +17,6 @@ def lambda_handler(event, __):
         }
 
     data = json.loads(body)
-
     userId = data.get('id')
 
     if not userId:
@@ -54,7 +56,18 @@ def lambda_handler(event, __):
                 })
             }
             return response
+
+    except ClientError as e:
+        logging.error(f"ERROR: {e}")
+        return {
+            'statusCode': 400,
+            'body': json.dumps({
+                'message': f"Error en la conexión. {e}"
+            })
+        }
+
     except Exception as e:
+        logging.error(f"ERROR: {e}")
         return {
             'statusCode': 500,
             'body': json.dumps({

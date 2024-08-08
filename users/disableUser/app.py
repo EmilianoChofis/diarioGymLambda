@@ -1,6 +1,9 @@
 import json
-from db_conn import connect_to_db
+import logging
 import jwt
+
+from db_conn import connect_to_db
+from botocore.exceptions import ClientError
 
 
 def lambda_handler(event, __):
@@ -29,11 +32,11 @@ def lambda_handler(event, __):
         access_token = access_token.split(" ")[1]
 
         claims = jwt.decode(access_token, options={"verify_signature": False})
-        print(claims)
+        logging.info(claims)
 
         # Validar rol
         role = claims.get('cognito:groups')
-        print(role)
+        logging.info(role)
 
         if not role or 'administradores' not in role:
             return {
@@ -90,7 +93,7 @@ def lambda_handler(event, __):
                 }
                 return response
         except Exception as e:
-            print(f"Error al ejecutar la consulta: {e}")
+            logging.error(f"Error: ${e}")
             return {
                 'statusCode': 500,
                 'body': json.dumps({
@@ -100,8 +103,18 @@ def lambda_handler(event, __):
 
         finally:
             connection.close()
+
+    except ClientError as e:
+        logging.error(f"Error: ${e}")
+        return {
+            'statusCode': 400,
+            'body': json.dumps({
+                'message': f"Error en la conexión. {e}"
+            })
+        }
+
     except Exception as e:
-        print(f"Error en lambda_handler: {e}")
+        logging.error(f"Error lambda handler: ${e}")
         return {
             'statusCode': 500,
             'body': json.dumps({

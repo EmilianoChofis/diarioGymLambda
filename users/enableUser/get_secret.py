@@ -1,9 +1,12 @@
 import boto3
+import os
+import logging
+
 from botocore.exceptions import ClientError
 
 
 def get_secret():
-    secret_name = "dev/ute/mysqlSecrets"
+    secret_name = os.getenv('SECRET_NAME')
     region_name = "us-east-1"
 
     session = boto3.session.Session()
@@ -16,7 +19,7 @@ def get_secret():
             SecretId=secret_name
         )
     except ClientError as e:
-        print(f"ERROR: Unexpected error: Could not to get secrets. {e}")
+        logging.error(f"Error getting secret value: {e}")
         raise e
 
     secret = get_secret_value_response['SecretString']
