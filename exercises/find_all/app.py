@@ -59,9 +59,6 @@ def lambda_handler(event, __):
                 })
             }
 
-
-
-
         connection = connect_to_db()
         if connection is None:
             return {
