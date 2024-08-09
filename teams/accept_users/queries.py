@@ -55,11 +55,11 @@ def number_of_members(team_id):
     connection = connect_to_db()
     try:
         with connection.cursor() as cursor:
-            sql = "SELECT COUNT(*) FROM user_group WHERE team_id = %s"
+            sql = "SELECT * FROM user_group WHERE team_id = %s"
             cursor.execute(sql, (team_id,))
             result = cursor.fetchone()
 
-            return result[0]
+            return result
     except pymysql.MySQLError as e:
         logging.error(f"ERROR: {e}")
         raise e

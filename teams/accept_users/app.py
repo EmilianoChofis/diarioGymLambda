@@ -98,7 +98,7 @@ def lambda_handler(event, __):
 
         membersOfTeam = number_of_members(teamId)
 
-        if membersOfTeam > 7:
+        if len(membersOfTeam) > 7:
             return {
                 'statusCode': 409,
                 'body': json.dumps({
