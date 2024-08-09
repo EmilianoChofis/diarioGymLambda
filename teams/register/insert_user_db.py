@@ -29,14 +29,12 @@ def user_exists_in_db(uid):
     connection = connect_to_db()
     try:
         with connection.cursor() as cursor:
-            sql = "SELECT COUNT(*) FROM users WHERE uid = %s"
-            cursor.execute(sql, (uid,))  # Pasar uid como una tupla
+            sql = "SELECT * FROM users WHERE uid = %s"
+            cursor.execute(sql, (uid,))
             result = cursor.fetchone()
-            logging.error(f"RESULT: {result}")
-            if result and result[0] > 0:
-                return True
-            else:
-                return False
+
+            return result is not None
+
     except pymysql.MySQLError as e:
         logging.error(f"ERROR: {e}")
         raise e
@@ -48,10 +46,11 @@ def user_has_team(uid):
     connection = connect_to_db()
     try:
         with connection.cursor() as cursor:
-            sql = "SELECT COUNT(*) FROM teams WHERE couch_id = %s"
+            sql = "SELECT * FROM teams WHERE couch_id = %s"
             cursor.execute(sql, (uid,))
             result = cursor.fetchone()
-            return result[0] > 0
+
+            return result is not None
     except pymysql.MySQLError as e:
         logging.error(f"ERROR: {e}")
         raise e
