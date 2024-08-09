@@ -97,14 +97,14 @@ def lambda_handler(event, __):
             }
 
         membersOfTeam = number_of_members(teamId)
-
-        if len(membersOfTeam) > 7:
-            return {
-                'statusCode': 409,
-                'body': json.dumps({
-                    "message": "El equipo ya tiene el número máximo de integrantes."
-                })
-            }
+        if membersOfTeam is not None:
+            if len(membersOfTeam) > 7:
+                return {
+                    'statusCode': 409,
+                    'body': json.dumps({
+                        "message": "El equipo ya tiene el número máximo de integrantes."
+                    })
+                }
 
         isRegistered = insert_user_group(userId, teamId)
 
