@@ -30,7 +30,7 @@ def user_exists_in_db(uid):
     try:
         with connection.cursor() as cursor:
             sql = "SELECT COUNT(*) FROM users WHERE uid = %s"
-            cursor.execute(sql, (uid,))
+            cursor.execute(sql, uid)
             result = cursor.fetchone()
             return result[0] > 0
     except pymysql.MySQLError as e:
@@ -44,7 +44,7 @@ def user_has_team(uid):
     try:
         with connection.cursor() as cursor:
             sql = "SELECT COUNT(*) FROM teams WHERE couch_id = %s"
-            cursor.execute(sql, (uid,))
+            cursor.execute(sql, uid)
             result = cursor.fetchone()
             return result[0] > 0
     except pymysql.MySQLError as e:
