@@ -3,24 +3,19 @@ import pymysql
 from db_conn import connect_to_db
 
 
-def insert_team_db(uid):
+def remove_user_team(userId, teamId):
     connection = connect_to_db()
     try:
         with connection.cursor() as cursor:
-            sql_insert = "INSERT INTO teams (couch_id) VALUES (%s)"
-            cursor.execute(sql_insert, (uid,))
-            team_id = cursor.lastrowid
-
-            if team_id == 0:
-                raise pymysql.MySQLError("No se pudo registrar el equipo.")
-
-            # Confirmar la transacción
+            sql_insert = "DELETE FROM user_group WHERE user_id = %s AND team_id = %s"
+            cursor.execute(sql_insert, (userId, teamId))
             connection.commit()
 
-            return team_id
+            return True
+
     except pymysql.MySQLError as e:
         connection.rollback()
-        logging.error(f"ERROR REGISTER: {e}")
+        logging.error(f"ERROR DELETED: {e}")
         raise e
     finally:
         connection.close()
@@ -42,8 +37,22 @@ def user_exists_in_db(uid):
     finally:
         connection.close()
 
+def user_has_team(userId, teamId):
+    connection = connect_to_db()
+    try:
+        with connection.cursor() as cursor:
+            sql = "SELECT * FROM user_group WHERE user_id = %s AND team_id = %s"
+            cursor.execute(sql, (userId, teamId))
+            result = cursor.fetchone()
 
-def user_has_team(uid):
+            return result is not None
+    except pymysql.MySQLError as e:
+        logging.error(f"ERROR: {e}")
+        raise e
+    finally:
+        connection.close()
+
+def get_couch_team(uid):
     connection = connect_to_db()
     try:
         with connection.cursor() as cursor:
@@ -51,7 +60,7 @@ def user_has_team(uid):
             cursor.execute(sql, (uid,))
             result = cursor.fetchone()
 
-            return result is not None
+            return result
     except pymysql.MySQLError as e:
         logging.error(f"ERROR: {e}")
         raise e

@@ -183,7 +183,7 @@ Resources:
       Name: TeamApi
       StageName: Prod
       Cors:
-        AllowMethods: "'POST,GET,OPTIONS'"
+        AllowMethods: "'POST,GET,OPTIONS,DELETE'"
         AllowHeaders: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
         AllowOrigin: "'*'"
         MaxAge: "'600'"
@@ -471,6 +471,64 @@ Resources:
             DB_NAME: Chomfit
             SECRET_NAME: !Ref MyDBSecret
 
+  AcceptUserTeamFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: teams/accept_users/
+      Handler: app.lambda_handler
+      Role: !GetAtt LambdaExecutionRole.Arn
+      Events:
+        AcceptUserTeam:
+          Type: Api
+          Properties:
+            RestApiId: !Ref TeamApi
+            Path: /accept_user
+            Method: post
+      Environment:
+        Variables:
+          DB_HOST: !GetAtt RelationalDatabase.Endpoint.Address
+          DB_NAME: Chomfit
+          SECRET_NAME: !Ref MyDBSecret
+
+  RemoveUserTeamFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: teams/remove_user/
+      Handler: app.lambda_handler
+      Role: !GetAtt LambdaExecutionRole.Arn
+      Events:
+        RemoveUserTeam:
+          Type: Api
+          Properties:
+            RestApiId: !Ref TeamApi
+            Path: /remove_user
+            Method: post
+      Environment:
+        Variables:
+          DB_HOST: !GetAtt RelationalDatabase.Endpoint.Address
+          DB_NAME: Chomfit
+          SECRET_NAME: !Ref MyDBSecret
+
+  LeaveTeamFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: teams/leave_team/
+      Handler: app.lambda_handler
+      Role: !GetAtt LambdaExecutionRole.Arn
+      Events:
+        LeaveTeam:
+          Type: Api
+          Properties:
+            RestApiId: !Ref TeamApi
+            Path: /leave_team
+            Method: delete
+      Environment:
+        Variables:
+          DB_HOST: !GetAtt RelationalDatabase.Endpoint.Address
+          DB_NAME: Chomfit
+          SECRET_NAME: !Ref MyDBSecret
+
+
 Outputs:
   GetUserByIdApiUrl:
     Description: API Gateway endpoint URL with path get_user_by_id
@@ -544,6 +602,24 @@ Outputs:
   FindByIdTeamFunctionArn:
     Description: Find by id team Lambda Function ARN
     Value: !GetAtt FindByIdTeamFunction.Arn
+  AcceptUserTeamApiUrl:
+    Description: API Gateway endpoint URL with path accept_user
+    Value: !Sub https://${TeamApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/accept_user
+  AcceptUserTeamFunctionArn:
+    Description: Accept user to team Lambda Function ARN
+    Value: !GetAtt AcceptUserTeamFunction.Arn
+  RemoveUserTeamApiUrl:
+    Description: API Gateway endpoint URL with path remove_user
+    Value: !Sub https://${TeamApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/remove_user
+  RemoveUserTeamFunctionArn:
+    Description: Remove user from team Lambda Function ARN
+    Value: !GetAtt RemoveUserTeamFunction.Arn
+  LeaveTeamApiUrl:
+    Description: API Gateway endpoint URL with path leave_team
+    Value: !Sub https://${TeamApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/leave_team
+  LeaveTeamFunctionArn:
+    Description: Leave team Lambda Function ARN
+    Value: !GetAtt LeaveTeamFunction.Arn
   LambdaExecutionRoleArn:
     Description: Lambda Execution Role ARN
     Value: !GetAtt LambdaExecutionRole.Arn

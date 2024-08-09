@@ -12,6 +12,7 @@ def insert_user_db(uid, name, lastname, age, gender):
             connection.commit()
             return True
     except pymysql.MySQLError as e:
+        connection.rollback()
         logging.error(f"ERROR: {e}")
         raise e
     finally:
