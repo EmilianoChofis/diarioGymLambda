@@ -1,8 +1,6 @@
 import json
 import logging
-import jwt
 
-from db_conn import connect_to_db
 from botocore.exceptions import ClientError
 
 from queries import get_user, change_status_user

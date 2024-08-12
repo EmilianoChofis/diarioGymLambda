@@ -300,6 +300,29 @@ Resources:
           DB_NAME: Chomfit
           SECRET_NAME: !Ref MyDBSecret
 
+  RegisterUserFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: users/registerUser/
+      Handler: app.lambda_handler
+      Role: !GetAtt LambdaExecutionRole.Arn
+      Events:
+        RegisterUser:
+          Type: Api
+          Properties:
+            RestApiId: !Ref UserApi
+            Path: /register_user
+            Method: post
+            Auth:
+              Authorizer: CognitoAuthorizer
+      Environment:
+        Variables:
+          DB_HOST: !GetAtt RelationalDatabase.Endpoint.Address
+          DB_NAME: Chomfit
+          SECRET_NAME: !Ref MyDBSecret
+          CLIENT_ID: !GetAtt MyUserPoolClient.ClientId
+          USER_POOL_ID: !Ref UserPool
+
   LoginFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -554,6 +577,12 @@ Outputs:
   EnableUserFunctionArn:
     Description: Enable user Lambda Function ARN
     Value: !GetAtt EnableUserFunction.Arn
+  RegisterUserApiUrl:
+    Description: API Gateway endpoint URL with path register_user
+    Value: !Sub https://${UserApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/register_user
+  RegisterUserFunctionArn:
+    Description: Register user Lambda Function ARN
+    Value: !GetAtt RegisterUserFunction.Arn
   LoginApiUrl:
     Description: API Gateway endpoint URL with path login
     Value: !Sub https://${AuthApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/login

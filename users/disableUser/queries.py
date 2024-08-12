@@ -1,3 +1,4 @@
+import json
 import logging
 import pymysql
 from db_conn import connect_to_db
@@ -20,18 +21,17 @@ def get_user(uid):
         connection.close()
 
 
-def modify_user(uid, name, lastname, age, gender):
+def change_status_user(uid, status):
     connection = connect_to_db()
     try:
         with connection.cursor() as cursor:
-            sql = "UPDATE users SET name = %s, lastname = %s, age = %s, gender = %s WHERE uid = %s"
-            cursor.execute(sql, (name, lastname, age, gender, uid))
+            sql = "UPDATE users SET status = %s WHERE uid = %s"
+            cursor.execute(sql, (status, uid))
             connection.commit()
 
             return True
 
     except pymysql.MySQLError as e:
-        connection.rollback()
         logging.error(f"ERROR: {e}")
         raise e
     finally:
