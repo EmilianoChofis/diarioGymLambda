@@ -43,7 +43,7 @@ def register_routine_exercise(routine):
     try:
         with connection.cursor() as cursor:
             sql_insert = "INSERT INTO routine (user_id, date, status) VALUES (%s, %s, %s)"
-            cursor.execute(sql_insert, (routine.get("user_id"), routine.get("date"), 'activo'))
+            cursor.execute(sql_insert, (routine.get("user").get("id"), routine.get("date"), 'activo'))
             routine_id = cursor.lastrowid
 
             if routine_id == 0:
