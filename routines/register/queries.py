@@ -52,7 +52,7 @@ def register_routine_exercise(routine):
             for exercise in routine.get("exercises"):
                 sql_insert = "INSERT INTO routine_exercise (routine_id, exercise_id, reps, sets) VALUES (%s, %s, %s, %s)"
                 cursor.execute(sql_insert,
-                               (routine_id, exercise.get("exercise_id"), exercise.get("reps"), exercise.get("sets")))
+                               (routine_id, exercise.get("id"), exercise.get("reps"), exercise.get("sets")))
 
             connection.commit()
             return routine_id
