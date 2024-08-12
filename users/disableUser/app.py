@@ -5,48 +5,33 @@ import jwt
 from db_conn import connect_to_db
 from botocore.exceptions import ClientError
 
+from queries import get_user, change_status_user
+from validate_token import validate_token, validate_user_role
+
 
 def lambda_handler(event, __):
     try:
-        body = event.get('body')
-        headers = event.get('headers')
+        claims, error_message = validate_token(event)
 
-        if headers is None:
+        if error_message:
             return {
                 'statusCode': 401,
+                'body': json.dumps({
+                    "message": error_message
+                })
+            }
+
+        if not validate_user_role(claims, ['Admin']):
+            return {
+                'statusCode': 403,
                 'body': json.dumps({
                     "message": "No tienes permisos para realizar esta acción."
                 })
             }
 
-        access_token = headers.get('Authorization')
+        body_parameters = json.loads(event["body"])
 
-        if not access_token or not access_token.startswith("Bearer "):
-            return {
-                'statusCode': 401,
-                'body': json.dumps({
-                    "message": "No tienes permisos para realizar esta acción."
-                })
-            }
-
-        access_token = access_token.split(" ")[1]
-
-        claims = jwt.decode(access_token, options={"verify_signature": False})
-        logging.info(claims)
-
-        # Validar rol
-        role = claims.get('cognito:groups')
-        logging.info(role)
-
-        if not role or 'administradores' not in role:
-            return {
-                'statusCode': 401,
-                'body': json.dumps({
-                    "message": "No tienes permisos para realizar esta acción."
-                })
-            }
-
-        if not body:
+        if not body_parameters:
             return {
                 'statusCode': 400,
                 'body': json.dumps({
@@ -54,8 +39,7 @@ def lambda_handler(event, __):
                 })
             }
 
-        data = json.loads(body)
-        userId = data.get('id')
+        userId = body_parameters.get('id')
 
         if not userId:
             return {
@@ -65,44 +49,34 @@ def lambda_handler(event, __):
                 })
             }
 
-        if not isinstance(userId, int):
+        userRegistered = get_user(userId)
+
+        if userRegistered is None:
             return {
-                'statusCode': 400,
+                'statusCode': 404,
                 'body': json.dumps({
-                    "message": "El campo id debe ser un número."
+                    "message": "No se encontró ningun usuario con ese uid."
                 })
             }
 
-        connection = connect_to_db()
-        if connection is None:
-            return {
-                'statusCode': 500,
-                'body': json.dumps({
-                    "message": "Error de servidor. No se pudo conectar a la base de datos. Inténtalo más tarde."
-                })
-            }
+        statusToChange = userRegistered.get('status') == 'activo' if 'inactivo' else 'activo'
 
-        try:
-            with connection.cursor() as cursor:
-                sql = "UPDATE users SET expire_at = CURRENT_TIMESTAMP, enable = '0' WHERE id = %s"
-                cursor.execute(sql, (userId,))
-                connection.commit()
-                response = {
-                    'statusCode': 200,
-                    'body': json.dumps({'message': 'Usuario deshabilitado correctamente'})
-                }
-                return response
-        except Exception as e:
-            logging.error(f"Error: ${e}")
+        response = change_status_user(userId, statusToChange)
+
+        if response is False:
             return {
                 'statusCode': 500,
                 'body': json.dumps({
-                    'message': "Error de servidor. Vuelve a intentarlo más tarde."
+                    "message": "Error al modificar el status del usuario."
                 })
             }
 
-        finally:
-            connection.close()
+        return {
+            'statusCode': 200,
+            'body': json.dumps({
+                "message": "Status del usuario modificado exitosamente."
+            })
+        }
 
     except ClientError as e:
         logging.error(f"Error: ${e}")

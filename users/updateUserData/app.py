@@ -1,116 +1,85 @@
 import json
 import logging
-import pymysql
 
 from botocore.exceptions import ClientError
-from db_conn import connect_to_db
+
+from queries import get_user, modify_user
+from validate_token import validate_token, validate_user_role
 
 
 def lambda_handler(event, __):
-    body = event.get('body')
-
-    if not body:
-        return {
-            'statusCode': 400,
-            'body': json.dumps('Petición inválida. no se encontró el body.')
-        }
-
-    data = json.loads(body)
-
-    # Datos de entrada
-    user_id = data.get('id')
-    username = data.get('username')
-    password = data.get('password')
-    email = data.get('email')
-    role = data.get('role')
-
-    # Validar que el ID esté presente
-    if not user_id:
-        return {
-            'statusCode': 400,
-            'body': json.dumps({
-                "message": "El campo id es requerido."
-            })
-        }
-
-    if not isinstance(user_id, int):
-        return {
-            'statusCode': 400,
-            'body': json.dumps({
-                "message": "El campo id debe ser un número."
-            })
-        }
-
-    connection = connect_to_db()
-    if connection is None:
-        return {
-            'statusCode': 500,
-            'body': json.dumps({
-                "message": "Error de servidor. No se pudo conectar a la base de datos. Inténtalo más tarde."
-            })
-        }
-
     try:
-        with connection.cursor() as cursor:
-            # Verificar si el usuario existe
-            sql = "SELECT * FROM users_inc WHERE id = %s"
-            cursor.execute(sql, (user_id,))
-            result = cursor.fetchone()
+        claims, error_message = validate_token(event)
 
-            if not result:
-                return {
-                    'statusCode': 404,
-                    'body': json.dumps({
-                        "message": "Usuario no encontrado."
-                    })
-                }
+        if error_message:
+            return {
+                'statusCode': 401,
+                'body': json.dumps({
+                    "message": error_message
+                })
+            }
 
-            # Actualizar la información del usuario
-            update_fields = []
-            update_values = []
+        if not validate_user_role(claims, ['Admin']):
+            return {
+                'statusCode': 403,
+                'body': json.dumps({
+                    "message": "No tienes permisos para realizar esta acción."
+                })
+            }
 
-            if not username and not password and not email and not role:
-                return {
-                    'statusCode': 400,
-                    'body': json.dumps({
-                        "message": "No se recibieron datos para actualizar."
-                    })
-                }
+        body_parameters = json.loads(event["body"])
 
-            if username:
-                update_fields.append("username = %s")
-                update_values.append(username)
-            if password:
-                update_fields.append("password = %s")
-                update_values.append(password)
-            if email:
-                update_fields.append("email = %s")
-                update_values.append(email)
-            if role:
-                update_fields.append("role_id = %s")
-                update_values.append(role)
+        if not body_parameters:
+            return {
+                'statusCode': 400,
+                'body': json.dumps({
+                    "message": "El body es requerido para la petición."
+                })
+            }
 
-            update_values.append(user_id)
-            sql = f"UPDATE users_inc SET {', '.join(update_fields)} WHERE id = %s"
-            cursor.execute(sql, update_values)
-            connection.commit()
+        userId = body_parameters.get('id')
+        name = body_parameters.get('name')
+        lastname = body_parameters.get('lastname')
+        age = body_parameters.get('age')
+        gender = body_parameters.get('gender')
+
+        if not userId or not name or not lastname or not age or gender is None:
+            return {
+                'statusCode': 400,
+                'body': json.dumps({
+                    "message": "Falatan campos requeridos."
+                })
+            }
+
+        userRegistered = get_user(userId)
+
+        if userRegistered is None:
+            return {
+                'statusCode': 404,
+                'body': json.dumps({
+                    "message": "No se encontró ningun usuario con ese uid."
+                })
+            }
+
+        response = modify_user(userId, name, lastname, age, gender)
+
+        if response is False:
+            return {
+                'statusCode': 400,
+                'body': json.dumps({
+                    "message": "Error al actualizar el usuario."
+                })
+            }
 
         return {
             'statusCode': 200,
             'body': json.dumps({
-                "message": "Usuario actualizado correctamente.",
-                "data": {
-                    "id": user_id,
-                    "username": username,
-                    "email": email,
-                    "role": role
-                }
-
+                "message": "Usuario actualizado correctamente."
             })
         }
 
     except ClientError as e:
-        logging.error(f"ERROR: {e}")
+        logging.error(f"Error: ${e}")
         return {
             'statusCode': 400,
             'body': json.dumps({
@@ -119,13 +88,10 @@ def lambda_handler(event, __):
         }
 
     except Exception as e:
-        logging.error(f"ERROR: {e}")
+        logging.error(f"Error lambda handler: ${e}")
         return {
             'statusCode': 500,
             'body': json.dumps({
-                'message': f"Error de servidor. {e}"
+                'message': "Error interno del servidor."
             })
         }
-
-    finally:
-        connection.close()
