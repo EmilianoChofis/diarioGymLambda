@@ -57,7 +57,6 @@ def lambda_handler(event, __):
                 })
             }
 
-        # Cambiar el status del usuario a inactivo si el status actual es activo, de lo contrario cambiarlo a activo
         statusToChange = 'inactivo' if userRegistered.get('status') == 'activo' else 'activo'
 
         response = change_status_user(userId, statusToChange)
