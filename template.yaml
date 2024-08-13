@@ -610,7 +610,7 @@ Resources:
   RegisterFeedbackFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: feedback/register/
+      CodeUri: routines/feedback/
       Handler: app.lambda_handler
       Role: !GetAtt LambdaExecutionRole.Arn
       Events:
