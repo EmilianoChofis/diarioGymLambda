@@ -588,6 +588,44 @@ Resources:
           DB_NAME: Chomfit
           SECRET_NAME: !Ref MyDBSecret
 
+  FindAllRoutinesByCouchFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: routines/findAllByCouch/
+      Handler: app.lambda_handler
+      Role: !GetAtt LambdaExecutionRole.Arn
+      Events:
+        FindAllRoutinesByCouch:
+          Type: Api
+          Properties:
+            RestApiId: !Ref RoutineApi
+            Path: /find_all_routines_by_couch
+            Method: post
+      Environment:
+        Variables:
+          DB_HOST: !GetAtt RelationalDatabase.Endpoint.Address
+          DB_NAME: Chomfit
+          SECRET_NAME: !Ref MyDBSecret
+
+  RegisterFeedbackFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: feedback/register/
+      Handler: app.lambda_handler
+      Role: !GetAtt LambdaExecutionRole.Arn
+      Events:
+        RegisterFeedback:
+          Type: Api
+          Properties:
+            RestApiId: !Ref RoutineApi
+            Path: /register_feedback
+            Method: post
+      Environment:
+          Variables:
+              DB_HOST: !GetAtt RelationalDatabase.Endpoint.Address
+              DB_NAME: Chomfit
+              SECRET_NAME: !Ref MyDBSecret
+
 Outputs:
   GetUserByIdApiUrl:
     Description: API Gateway endpoint URL with path get_user_by_id
@@ -691,6 +729,15 @@ Outputs:
   RegisterRoutineFunctionArn:
     Description: Register routine Lambda Function ARN
     Value: !GetAtt RegisterRoutineFunction.Arn
+  FindAllRoutinesByCouchApiUrl:
+    Description: API Gateway endpoint URL with path find_all_routines_by_couch
+    Value: !Sub https://${RoutineApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/find_all_routines_by_couch
+  RegisterFeedbackApiUrl:
+    Description: API Gateway endpoint URL with path register_feedback
+    Value: !Sub https://${RoutineApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/register_feedback
+  RegisterFeedbackFunctionArn:
+    Description: Register feedback Lambda Function ARN
+    Value: !GetAtt RegisterFeedbackFunction.Arn
   LambdaExecutionRoleArn:
     Description: Lambda Execution Role ARN
     Value: !GetAtt LambdaExecutionRole.Arn
