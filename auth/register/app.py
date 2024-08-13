@@ -78,6 +78,12 @@ def lambda_handler(event, __):
     if not body_parameters:
         return {
             'statusCode': 400,
+            'headers': {
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Credentials': 'true',
+                'Access-Control-Allow-Headers': 'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token',
+                'Access-Control-Allow-Methods': 'OPTIONS,POST'
+            },
             'body': json.dumps({
                 "message": "El body es requerido para la petición."
             })
@@ -86,6 +92,12 @@ def lambda_handler(event, __):
     if email is None or username is None or name is None or lastname is None or age is None or gender is None:
         return {
             "statusCode": 400,
+            'headers': {
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Credentials': 'true',
+                'Access-Control-Allow-Headers': 'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token',
+                'Access-Control-Allow-Methods': 'OPTIONS,POST'
+            },
             "body": json.dumps({"message": "Faltan campos requeridos."})
         }
 
@@ -93,6 +105,12 @@ def lambda_handler(event, __):
         if user_exists_in_cognito(username):
             return {
                 'statusCode': 409,
+                'headers': {
+                    'Access-Control-Allow-Origin': '*',
+                    'Access-Control-Allow-Credentials': 'true',
+                    'Access-Control-Allow-Headers': 'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token',
+                    'Access-Control-Allow-Methods': 'OPTIONS,POST'
+                },
                 'body': json.dumps({
                     "message": "El usuario ya se encuentra registrado."
                 })
@@ -101,6 +119,12 @@ def lambda_handler(event, __):
         if email_exists_in_cognito(email):
             return {
                 'statusCode': 409,
+                'headers': {
+                    'Access-Control-Allow-Origin': '*',
+                    'Access-Control-Allow-Credentials': 'true',
+                    'Access-Control-Allow-Headers': 'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token',
+                    'Access-Control-Allow-Methods': 'OPTIONS,POST'
+                },
                 'body': json.dumps({
                     "message": "El correo ya se encuentra registrado."
                 })
@@ -111,6 +135,12 @@ def lambda_handler(event, __):
         insert_user_db(uid, name, lastname, age, gender)
         return {
             'statusCode': 201,
+            'headers': {
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Credentials': 'true',
+                'Access-Control-Allow-Headers': 'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token',
+                'Access-Control-Allow-Methods': 'OPTIONS,POST'
+            },
             'body': json.dumps({
                 "message": "Usuario registrado correctamente.",
             })
@@ -119,6 +149,12 @@ def lambda_handler(event, __):
         logging.error(f"ERROR: {e}")
         return {
             'statusCode': 404,
+            'headers': {
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Credentials': 'true',
+                'Access-Control-Allow-Headers': 'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token',
+                'Access-Control-Allow-Methods': 'OPTIONS,POST'
+            },
             'body': json.dumps({
                 'message': f"Recurso no encontrado. {e}"
             })
@@ -127,6 +163,12 @@ def lambda_handler(event, __):
         logging.error(f"ERROR: {e}")
         return {
             'statusCode': 400,
+            'headers': {
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Credentials': 'true',
+                'Access-Control-Allow-Headers': 'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token',
+                'Access-Control-Allow-Methods': 'OPTIONS,POST'
+            },
             'body': json.dumps({
                 'message': f"Error en la conexión. {e}"
             })
@@ -135,6 +177,12 @@ def lambda_handler(event, __):
         logging.error(f"ERROR: {e}")
         return {
             'statusCode': 500,
+            'headers': {
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Credentials': 'true',
+                'Access-Control-Allow-Headers': 'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token',
+                'Access-Control-Allow-Methods': 'OPTIONS,POST'
+            },
             'body': json.dumps({
                 'message': f"Error de servidor. {e}"
             })
