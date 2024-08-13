@@ -211,7 +211,7 @@ Resources:
           AllowHeaders: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
           AllowOrigin: "'*'"
           MaxAge: "'600'"
-          AllowCredentials: false 
+          AllowCredentials: false
 
   GetAllUsersFunction:
     Type: AWS::Serverless::Function
