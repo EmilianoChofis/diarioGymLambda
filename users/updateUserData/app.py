@@ -14,6 +14,12 @@ def lambda_handler(event, __):
         if error_message:
             return {
                 'statusCode': 401,
+                'headers': {
+                    'Access-Control-Allow-Origin': '*',
+                    'Access-Control-Allow-Credentials': 'true',
+                    'Access-Control-Allow-Headers': 'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token',
+                    'Access-Control-Allow-Methods': 'OPTIONS,UPDATE'
+                },
                 'body': json.dumps({
                     "message": error_message
                 })
@@ -22,6 +28,12 @@ def lambda_handler(event, __):
         if not validate_user_role(claims, ['Admin']):
             return {
                 'statusCode': 403,
+                'headers': {
+                    'Access-Control-Allow-Origin': '*',
+                    'Access-Control-Allow-Credentials': 'true',
+                    'Access-Control-Allow-Headers': 'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token',
+                    'Access-Control-Allow-Methods': 'OPTIONS,UPDATE'
+                },
                 'body': json.dumps({
                     "message": "No tienes permisos para realizar esta acción."
                 })
@@ -32,6 +44,12 @@ def lambda_handler(event, __):
         if not body_parameters:
             return {
                 'statusCode': 400,
+                'headers': {
+                    'Access-Control-Allow-Origin': '*',
+                    'Access-Control-Allow-Credentials': 'true',
+                    'Access-Control-Allow-Headers': 'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token',
+                    'Access-Control-Allow-Methods': 'OPTIONS,UPDATE'
+                },
                 'body': json.dumps({
                     "message": "El body es requerido para la petición."
                 })
@@ -46,6 +64,12 @@ def lambda_handler(event, __):
         if not userId or not name or not lastname or not age or gender is None:
             return {
                 'statusCode': 400,
+                'headers': {
+                    'Access-Control-Allow-Origin': '*',
+                    'Access-Control-Allow-Credentials': 'true',
+                    'Access-Control-Allow-Headers': 'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token',
+                    'Access-Control-Allow-Methods': 'OPTIONS,UPDATE'
+                },
                 'body': json.dumps({
                     "message": "Falatan campos requeridos."
                 })
@@ -56,6 +80,12 @@ def lambda_handler(event, __):
         if userRegistered is None:
             return {
                 'statusCode': 404,
+                'headers': {
+                    'Access-Control-Allow-Origin': '*',
+                    'Access-Control-Allow-Credentials': 'true',
+                    'Access-Control-Allow-Headers': 'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token',
+                    'Access-Control-Allow-Methods': 'OPTIONS,UPDATE'
+                },
                 'body': json.dumps({
                     "message": "No se encontró ningun usuario con ese uid."
                 })
@@ -66,6 +96,12 @@ def lambda_handler(event, __):
         if response is False:
             return {
                 'statusCode': 400,
+                'headers': {
+                    'Access-Control-Allow-Origin': '*',
+                    'Access-Control-Allow-Credentials': 'true',
+                    'Access-Control-Allow-Headers': 'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token',
+                    'Access-Control-Allow-Methods': 'OPTIONS,UPDATE'
+                },
                 'body': json.dumps({
                     "message": "Error al actualizar el usuario."
                 })
@@ -73,6 +109,12 @@ def lambda_handler(event, __):
 
         return {
             'statusCode': 200,
+            'headers': {
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Credentials': 'true',
+                'Access-Control-Allow-Headers': 'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token',
+                'Access-Control-Allow-Methods': 'OPTIONS,UPDATE'
+            },
             'body': json.dumps({
                 "message": "Usuario actualizado correctamente."
             })
@@ -82,6 +124,12 @@ def lambda_handler(event, __):
         logging.error(f"Error: ${e}")
         return {
             'statusCode': 400,
+            'headers': {
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Credentials': 'true',
+                'Access-Control-Allow-Headers': 'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token',
+                'Access-Control-Allow-Methods': 'OPTIONS,UPDATE'
+            },
             'body': json.dumps({
                 'message': f"Error en la conexión. {e}"
             })
@@ -91,6 +139,12 @@ def lambda_handler(event, __):
         logging.error(f"Error lambda handler: ${e}")
         return {
             'statusCode': 500,
+            'headers': {
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Credentials': 'true',
+                'Access-Control-Allow-Headers': 'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token',
+                'Access-Control-Allow-Methods': 'OPTIONS,UPDATE'
+            },
             'body': json.dumps({
                 'message': "Error interno del servidor."
             })

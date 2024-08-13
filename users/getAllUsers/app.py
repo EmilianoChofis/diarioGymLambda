@@ -14,6 +14,12 @@ def lambda_handler(event, __):
         if headers is None:
             return {
                 'statusCode': 401,
+                'headers': {
+                    'Access-Control-Allow-Origin': '*',
+                    'Access-Control-Allow-Credentials': 'true',
+                    'Access-Control-Allow-Headers': 'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token',
+                    'Access-Control-Allow-Methods': 'OPTIONS,GET'
+                },
                 'body': json.dumps({
                     'message': "No tienes permisos para realizar esta acción."
                 })
@@ -24,6 +30,12 @@ def lambda_handler(event, __):
         if not access_token or not access_token.startswith("Bearer "):
             return {
                 'statusCode': 401,
+                'headers': {
+                    'Access-Control-Allow-Origin': '*',
+                    'Access-Control-Allow-Credentials': 'true',
+                    'Access-Control-Allow-Headers': 'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token',
+                    'Access-Control-Allow-Methods': 'OPTIONS,GET'
+                },
                 'body': json.dumps({
                     "message": "No tienes permisos para realizar esta acción."
                 })
@@ -42,6 +54,12 @@ def lambda_handler(event, __):
         if not role or 'Admin' not in role:
             return {
                 'statusCode': 401,
+                'headers': {
+                    'Access-Control-Allow-Origin': '*',
+                    'Access-Control-Allow-Credentials': 'true',
+                    'Access-Control-Allow-Headers': 'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token',
+                    'Access-Control-Allow-Methods': 'OPTIONS,GET'
+                },
                 'body': json.dumps({
                     "message": "No tienes permisos para realizar esta acción."
                 })
@@ -52,6 +70,12 @@ def lambda_handler(event, __):
         if connection is None:
             return {
                 'statusCode': 500,
+                'headers': {
+                    'Access-Control-Allow-Origin': '*',
+                    'Access-Control-Allow-Credentials': 'true',
+                    'Access-Control-Allow-Headers': 'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token',
+                    'Access-Control-Allow-Methods': 'OPTIONS,GET'
+                },
                 'body': json.dumps({
                     "message": "Error de servidor. No se pudo conectar a la base de datos. Inténtalo más tarde."
                 })
@@ -66,6 +90,12 @@ def lambda_handler(event, __):
             if result:
                 response = {
                     'statusCode': 200,
+                    'headers': {
+                        'Access-Control-Allow-Origin': '*',
+                        'Access-Control-Allow-Credentials': 'true',
+                        'Access-Control-Allow-Headers': 'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token',
+                        'Access-Control-Allow-Methods': 'OPTIONS,GET'
+                    },
                     'body': json.dumps({
                         "message": "Lista de usuarios obtenidos",
                         "data": result
@@ -74,6 +104,12 @@ def lambda_handler(event, __):
             else:
                 response = {
                     'statusCode': 404,
+                    'headers': {
+                        'Access-Control-Allow-Origin': '*',
+                        'Access-Control-Allow-Credentials': 'true',
+                        'Access-Control-Allow-Headers': 'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token',
+                        'Access-Control-Allow-Methods': 'OPTIONS,GET'
+                    },
                     'body': json.dumps({
                         'message': 'No se encontraron usuarios'
                     })
@@ -85,6 +121,12 @@ def lambda_handler(event, __):
         logging.error(f"ERROR: {e}")
         return {
             'statusCode': 400,
+            'headers': {
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Credentials': 'true',
+                'Access-Control-Allow-Headers': 'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token',
+                'Access-Control-Allow-Methods': 'OPTIONS,GET'
+            },
             'body': json.dumps({
                 'message': f"Error en la conexión. {e}"
             })
@@ -94,6 +136,12 @@ def lambda_handler(event, __):
         logging.error(f"ERROR: {e}")
         return {
             'statusCode': 500,
+            'headers': {
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Credentials': 'true',
+                'Access-Control-Allow-Headers': 'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token',
+                'Access-Control-Allow-Methods': 'OPTIONS,GET'
+            },
             'body': json.dumps({
                 'message': f"Error de servidor. {e}"
             })

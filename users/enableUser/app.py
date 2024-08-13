@@ -11,6 +11,12 @@ def lambda_handler(event, __):
     if not body:
         return {
             'statusCode': 400,
+            'headers': {
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Credentials': 'true',
+                'Access-Control-Allow-Headers': 'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token',
+                'Access-Control-Allow-Methods': 'OPTIONS,PATCH'
+            },
             'body': json.dumps({
                 "message": "El body es requerido para la petición."
             })
@@ -22,6 +28,12 @@ def lambda_handler(event, __):
     if not userId:
         return {
             'statusCode': 400,
+            'headers': {
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Credentials': 'true',
+                'Access-Control-Allow-Headers': 'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token',
+                'Access-Control-Allow-Methods': 'OPTIONS,PATCH'
+            },
             'body': json.dumps({
                 "message": "El campo id es requerido."
             })
@@ -30,6 +42,12 @@ def lambda_handler(event, __):
     if not isinstance(userId, int):
         return {
             'statusCode': 400,
+            'headers': {
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Credentials': 'true',
+                'Access-Control-Allow-Headers': 'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token',
+                'Access-Control-Allow-Methods': 'OPTIONS,PATCH'
+            },
             'body': json.dumps({
                 "message": "El campo id debe ser un número."
             })
@@ -39,6 +57,12 @@ def lambda_handler(event, __):
     if connection is None:
         return {
             'statusCode': 500,
+            'headers': {
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Credentials': 'true',
+                'Access-Control-Allow-Headers': 'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token',
+                'Access-Control-Allow-Methods': 'OPTIONS,PATCH'
+            },
             'body': json.dumps({
                 "message": "Error de servidor. No se pudo conectar a la base de datos. Inténtalo más tarde."
             })
@@ -51,6 +75,12 @@ def lambda_handler(event, __):
             connection.commit()
             response = {
                 'statusCode': 200,
+                'headers': {
+                    'Access-Control-Allow-Origin': '*',
+                    'Access-Control-Allow-Credentials': 'true',
+                    'Access-Control-Allow-Headers': 'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token',
+                    'Access-Control-Allow-Methods': 'OPTIONS,PATCH'
+                },
                 'body': json.dumps({
                     'message': 'Usuario habilitado correctamente',
                 })
@@ -61,6 +91,12 @@ def lambda_handler(event, __):
         logging.error(f"ERROR: {e}")
         return {
             'statusCode': 400,
+            'headers': {
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Credentials': 'true',
+                'Access-Control-Allow-Headers': 'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token',
+                'Access-Control-Allow-Methods': 'OPTIONS,PATCH'
+            },
             'body': json.dumps({
                 'message': f"Error en la conexión. {e}"
             })
@@ -70,6 +106,12 @@ def lambda_handler(event, __):
         logging.error(f"ERROR: {e}")
         return {
             'statusCode': 500,
+            'headers': {
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Credentials': 'true',
+                'Access-Control-Allow-Headers': 'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token',
+                'Access-Control-Allow-Methods': 'OPTIONS,PATCH'
+            },
             'body': json.dumps({
                 'message': "Error de servidor. Vuelve a intentarlo más tarde."
             })

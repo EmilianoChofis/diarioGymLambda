@@ -15,6 +15,12 @@ def lambda_handler(event, __):
         if error_message:
             return {
                 'statusCode': 401,
+                'headers': {
+                    'Access-Control-Allow-Origin': '*',
+                    'Access-Control-Allow-Credentials': 'true',
+                    'Access-Control-Allow-Headers': 'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token',
+                    'Access-Control-Allow-Methods': 'OPTIONS,DELETE'
+                },
                 'body': json.dumps({
                     "message": error_message
                 })
@@ -23,6 +29,12 @@ def lambda_handler(event, __):
         if not validate_user_role(claims, ['Couch']):
             return {
                 'statusCode': 403,
+                'headers': {
+                    'Access-Control-Allow-Origin': '*',
+                    'Access-Control-Allow-Credentials': 'true',
+                    'Access-Control-Allow-Headers': 'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token',
+                    'Access-Control-Allow-Methods': 'OPTIONS,DELETE'
+                },
                 'body': json.dumps({
                     "message": "No tienes permisos para realizar esta acción."
                 })
@@ -33,6 +45,12 @@ def lambda_handler(event, __):
         if not body_parameters:
             return {
                 'statusCode': 400,
+                'headers': {
+                    'Access-Control-Allow-Origin': '*',
+                    'Access-Control-Allow-Credentials': 'true',
+                    'Access-Control-Allow-Headers': 'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token',
+                    'Access-Control-Allow-Methods': 'OPTIONS,DELETE'
+                },
                 'body': json.dumps({
                     "message": "El body es requerido para la petición."
                 })
@@ -43,6 +61,12 @@ def lambda_handler(event, __):
         if team is None:
             return {
                 'statusCode': 400,
+                'headers': {
+                    'Access-Control-Allow-Origin': '*',
+                    'Access-Control-Allow-Credentials': 'true',
+                    'Access-Control-Allow-Headers': 'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token',
+                    'Access-Control-Allow-Methods': 'OPTIONS,DELETE'
+                },
                 'body': json.dumps({
                     "message": "El campo team es requerido."
                 })
@@ -53,6 +77,12 @@ def lambda_handler(event, __):
         if teamId is None:
             return {
                 "statusCode": 400,
+                'headers': {
+                    'Access-Control-Allow-Origin': '*',
+                    'Access-Control-Allow-Credentials': 'true',
+                    'Access-Control-Allow-Headers': 'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token',
+                    'Access-Control-Allow-Methods': 'OPTIONS,DELETE'
+                },
                 "body": json.dumps({"message": "EL campo id del team es requerido."})
             }
 
@@ -61,6 +91,12 @@ def lambda_handler(event, __):
         if user is None:
             return {
                 "statusCode": 400,
+                'headers': {
+                    'Access-Control-Allow-Origin': '*',
+                    'Access-Control-Allow-Credentials': 'true',
+                    'Access-Control-Allow-Headers': 'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token',
+                    'Access-Control-Allow-Methods': 'OPTIONS,DELETE'
+                },
                 "body": json.dumps({"message": "EL campo user es requerido."})
             }
 
@@ -69,12 +105,24 @@ def lambda_handler(event, __):
         if userId is None:
             return {
                 "statusCode": 400,
+                'headers': {
+                    'Access-Control-Allow-Origin': '*',
+                    'Access-Control-Allow-Credentials': 'true',
+                    'Access-Control-Allow-Headers': 'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token',
+                    'Access-Control-Allow-Methods': 'OPTIONS,DELETE'
+                },
                 "body": json.dumps({"message": "EL campo user.uid es requerido."})
             }
 
         if user_exists_in_db(userId) is False:
             return {
                 'statusCode': 404,
+                'headers': {
+                    'Access-Control-Allow-Origin': '*',
+                    'Access-Control-Allow-Credentials': 'true',
+                    'Access-Control-Allow-Headers': 'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token',
+                    'Access-Control-Allow-Methods': 'OPTIONS,DELETE'
+                },
                 'body': json.dumps({
                     "message": "No se encontró ningun usuario con ese uid."
                 })
@@ -83,6 +131,12 @@ def lambda_handler(event, __):
         if get_team_by_id(teamId) is None:
             return {
                 'statusCode': 404,
+                'headers': {
+                    'Access-Control-Allow-Origin': '*',
+                    'Access-Control-Allow-Credentials': 'true',
+                    'Access-Control-Allow-Headers': 'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token',
+                    'Access-Control-Allow-Methods': 'OPTIONS,DELETE'
+                },
                 'body': json.dumps({
                     "message": "No se encontró ningun equipo con ese id."
                 })
@@ -91,6 +145,12 @@ def lambda_handler(event, __):
         if user_has_team(userId, teamId) is False:
             return {
                 'statusCode': 404,
+                'headers': {
+                    'Access-Control-Allow-Origin': '*',
+                    'Access-Control-Allow-Credentials': 'true',
+                    'Access-Control-Allow-Headers': 'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token',
+                    'Access-Control-Allow-Methods': 'OPTIONS,DELETE'
+                },
                 'body': json.dumps({
                     "message": "El usuario no pertenece a ese equipo."
                 })
@@ -101,6 +161,12 @@ def lambda_handler(event, __):
         if isRemoved is None:
             return {
                 'statusCode': 400,
+                'headers': {
+                    'Access-Control-Allow-Origin': '*',
+                    'Access-Control-Allow-Credentials': 'true',
+                    'Access-Control-Allow-Headers': 'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token',
+                    'Access-Control-Allow-Methods': 'OPTIONS,DELETE'
+                },
                 'body': json.dumps({
                     "message": "No se pudo eliminar al usuario del equipo."
                 })
@@ -108,6 +174,12 @@ def lambda_handler(event, __):
 
         return {
             'statusCode': 201,
+            'headers': {
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Credentials': 'true',
+                'Access-Control-Allow-Headers': 'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token',
+                'Access-Control-Allow-Methods': 'OPTIONS,DELETE'
+            },
             'body': json.dumps({
                 "message": "Usuario eliminado del equipo correctamente.",
             })
@@ -117,6 +189,12 @@ def lambda_handler(event, __):
         logging.error(f"ERROR: {e}")
         return {
             'statusCode': 400,
+            'headers': {
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Credentials': 'true',
+                'Access-Control-Allow-Headers': 'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token',
+                'Access-Control-Allow-Methods': 'OPTIONS,DELETE'
+            },
             'body': json.dumps({
                 'message': f"Error en la conexión. {e}"
             })
@@ -126,6 +204,12 @@ def lambda_handler(event, __):
         logging.error(f"ERROR: {e}")
         return {
             'statusCode': 500,
+            'headers': {
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Credentials': 'true',
+                'Access-Control-Allow-Headers': 'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token',
+                'Access-Control-Allow-Methods': 'OPTIONS,DELETE'
+            },
             'body': json.dumps({
                 'message': f"Error de servidor. {e}"
             })
