@@ -171,7 +171,7 @@ Resources:
       Name: AuthApi
       StageName: Prod
       Cors:
-        AllowMethods: "'POST'"
+        AllowMethods: "'POST,GET,OPTIONS,DELETE,PUT,PATCH'"
         AllowHeaders: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
         AllowOrigin: "'*'"
         MaxAge: "'600'"
@@ -183,7 +183,7 @@ Resources:
       Name: TeamApi
       StageName: Prod
       Cors:
-        AllowMethods: "'POST,GET,OPTIONS,DELETE'"
+        AllowMethods: "'POST,GET,OPTIONS,DELETE,PUT,PATCH'"
         AllowHeaders: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
         AllowOrigin: "'*'"
         MaxAge: "'600'"
@@ -195,7 +195,7 @@ Resources:
       Name: RoutineApi
       StageName: Prod
       Cors:
-        AllowMethods: "'POST,GET,OPTIONS,DELETE'"
+        AllowMethods: "'POST,GET,OPTIONS,DELETE,PUT,PATCH'"
         AllowHeaders: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
         AllowOrigin: "'*'"
         MaxAge: "'600'"
@@ -206,6 +206,12 @@ Resources:
     Properties:
       Name: ExercisesApi
       StageName: Prod
+      Cors:
+          AllowMethods: "'POST,GET,OPTIONS,DELETE,PUT,PATCH'"
+          AllowHeaders: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+          AllowOrigin: "'*'"
+          MaxAge: "'600'"
+          AllowCredentials: false 
 
   GetAllUsersFunction:
     Type: AWS::Serverless::Function
