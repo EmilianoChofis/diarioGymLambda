@@ -11,17 +11,34 @@ def get_user_role(sub):
     try:
         client = boto3.client('cognito-idp', region_name='us-east-1')
         user_pool_id = os.getenv('USER_POOL_ID')
+
+        if not user_pool_id:
+            raise ValueError("USER_POOL_ID no está configurado.")
+
         response = client.list_users(
             UserPoolId=user_pool_id,
-            Filter=f"sub=\"{sub}\""
+            Filter=f'sub = "{sub}"'
         )
-        groups = response.get('UserAttributes', [])
-        for attribute in groups:
+
+        # Verificar si el usuario fue encontrado
+        if not response['Users']:
+            logging.warning(f"Usuario con sub {sub} no encontrado.")
+            return None
+
+        # Obtener los atributos del usuario
+        user = response['Users'][0]
+        attributes = user.get('Attributes', [])
+        for attribute in attributes:
             if attribute['Name'] == 'cognito:groups':
                 return attribute['Value']
+
         return None
+
     except ClientError as e:
         logging.error(f"ERROR: {e}")
+        return None
+    except Exception as e:
+        logging.error(f"Error inesperado: {e}")
         return None
 
 def lambda_handler(event, __):
