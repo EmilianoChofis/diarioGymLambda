@@ -13,7 +13,7 @@ def get_user_role(sub):
         user_pool_id = os.getenv('USER_POOL_ID')
         response = client.admin_get_user(
             UserPoolId=user_pool_id,
-            Username=sub
+            Filter=f"sub=\"{sub}\""
         )
         groups = response.get('UserAttributes', [])
         for attribute in groups:
