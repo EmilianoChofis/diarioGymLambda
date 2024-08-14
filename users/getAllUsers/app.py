@@ -15,22 +15,41 @@ def get_user_role(sub):
         if not user_pool_id:
             raise ValueError("USER_POOL_ID no está configurado.")
 
+        # Buscar el usuario por el sub (UID)
         response = client.list_users(
             UserPoolId=user_pool_id,
             Filter=f'sub = "{sub}"'
         )
 
+        # Verificar si el usuario fue encontrado
         if not response['Users']:
             logging.warning(f"Usuario con sub {sub} no encontrado.")
             return None
 
-        # Obtener los atributos del usuario
-        logging.warning(f"Usuarios encontrados: {response}")
-        user = response['Users'][0]
-        attributes = user.get('Attributes', [])
-        for attribute in attributes:
-            if attribute['Name'] == 'cognito:groups':
-                return attribute['Value']
+        logging.warning(f"Usuario con sub encontrado. {response}")
+        username = response['Users'][0]['Username']
+
+        # Obtener los grupos a los que pertenece el usuario
+        group_response = client.admin_list_groups_for_user(
+            UserPoolId=user_pool_id,
+            Username=username
+        )
+
+        logging.warning(f"Grupos del usuario: {group_response}")
+
+        groups = group_response.get('Groups', [])
+        if not groups:
+            logging.info(f"El usuario con sub {sub} no pertenece a ningún grupo.")
+            return None
+
+        return [group['GroupName'] for group in groups]
+
+    except ClientError as e:
+        logging.error(f"ERROR: {e}")
+        return None
+    except Exception as e:
+        logging.error(f"Error inesperado: {e}")
+        return None
 
         return None
 
