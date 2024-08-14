@@ -11,7 +11,7 @@ def get_user_role(sub):
     try:
         client = boto3.client('cognito-idp', region_name='us-east-1')
         user_pool_id = os.getenv('USER_POOL_ID')
-        response = client.admin_get_user(
+        response = client.list_users(
             UserPoolId=user_pool_id,
             Filter=f"sub=\"{sub}\""
         )
