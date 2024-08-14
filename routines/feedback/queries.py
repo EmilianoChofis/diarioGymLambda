@@ -1,6 +1,6 @@
 import logging
 import pymysql
-from db_conn import connect_to_db
+from .db_conn import connect_to_db
 
 
 def register_feedback(user_id, routine_id, feedback_date, score, comment):
