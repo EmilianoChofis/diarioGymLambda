@@ -1,6 +1,6 @@
 import json
 import pymysql
-from db_conn import connect_to_db
+from .db_conn import connect_to_db,get_all,close_connection
 import jwt
 
 
@@ -74,10 +74,8 @@ def lambda_handler(event, __):
                 })
             }
         try:
-            with connection.cursor() as cursor:
-                sql = "SELECT * FROM exercises"
-                cursor.execute(sql)
-                result = cursor.fetchall()
+            if connection:
+                result = get_all(connection)
                 return {
                     'statusCode': 200,
                     'headers': {
@@ -102,12 +100,12 @@ def lambda_handler(event, __):
                     'Access-Control-Allow-Methods': 'OPTIONS,POST'
                 },
                 'body': json.dumps({
-                    'message': "Error de servidor. Vuelve a intentarlo más tarde."
+                    'message': f"Error de servidor. Vuelve a intentarlo más tarde. {e}"
                 })
             }
 
         finally:
-            connection.close()
+            close_connection(connection)
     except Exception as e:
         return {
             'statusCode': 500,
@@ -118,7 +116,7 @@ def lambda_handler(event, __):
                 'Access-Control-Allow-Methods': 'OPTIONS,POST'
             },
             'body': json.dumps({
-                'message': "Error de servidor. Vuelve a intentarlo más tarde."
+                'message': f"Error de servidor. Vuelve a intentarlo más tarde.{e}"
             })
         }
 

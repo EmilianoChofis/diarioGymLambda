@@ -3,8 +3,8 @@ import logging
 
 from botocore.exceptions import ClientError
 
-from queries import get_user, change_status_user
-from validate_token import validate_token, validate_user_role
+from .queries import get_user, change_status_user
+from .validate_token import validate_token, validate_user_role
 
 
 def lambda_handler(event, __):

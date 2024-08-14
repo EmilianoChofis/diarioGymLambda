@@ -1,7 +1,7 @@
 import json
 import logging
 import pymysql
-from db_conn import connect_to_db
+from .db_conn import connect_to_db
 
 
 def get_user(uid):

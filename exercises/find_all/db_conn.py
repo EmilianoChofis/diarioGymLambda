@@ -2,7 +2,7 @@ import json
 import logging
 import os
 import pymysql
-from get_secret import get_secret
+from .get_secret import get_secret
 
 
 def connect_to_db():
@@ -19,4 +19,22 @@ def connect_to_db():
         return connection
     except pymysql.MySQLError as e:
         logging.error(f"ERROR: Unexpected error: Could not connect to MySQL instance. {e}")
+        raise e
+
+def get_all(connection):
+    try:
+        sql = "SELECT * FROM exercises"
+        connection.cursor().execute(sql)
+        result = connection.cursor().fetchall()
+        return result
+    except pymysql.MySQLError as e:
+        logging.error(f"ERROR: Unexpected error: Could not connect to MySQL instance. {e}")
+        raise e
+
+def close_connection(connection):
+    try:
+        connection.close()
+        logging.info("Connection closed successfully.")
+    except Exception as e:
+        logging.error("Error close Connection: %s", e)
         raise e

@@ -1,16 +1,155 @@
+import os
+import sys
+import unittest
+from unittest.mock import patch, MagicMock
 import json
-
+from botocore.exceptions import ClientError
 from users.disableUser import app
 
 
-def test_lambda_handler():
-    evento = {
-        'headers': json.dumps({
-            'Authorization': 'eyJraWQiOiJ5dzNxRVwvUFlaY3lJZTh0QUUrWUg1S3hZWjR2U1pJMlhVNVVmVGhHZU9DWT0iLCJhbGciOiJSUzI1NiJ9.eyJzdWIiOiJmNGE4ZTRjOC0wMGYxLTcwMDUtYmQ0MS1hYzI0OGUwM2EyMDAiLCJjb2duaXRvOmdyb3VwcyI6WyJhZG1pbmlzdHJhZG9yZXMiXSwiZW1haWxfdmVyaWZpZWQiOnRydWUsImlzcyI6Imh0dHBzOlwvXC9jb2duaXRvLWlkcC51cy1lYXN0LTEuYW1hem9uYXdzLmNvbVwvdXMtZWFzdC0xXzFIQWpIMWZLaiIsImNvZ25pdG86dXNlcm5hbWUiOiJhZG1pbiIsIm9yaWdpbl9qdGkiOiJlM2IxMzk1Yy1mM2E5LTQxYTEtYmMzMS0xMmI4YjAyYjU4NGEiLCJhdWQiOiI3cWVwb28yOHNhbTlhaGJmdTNiZW1kajg0MyIsImV2ZW50X2lkIjoiODY3NTlmNzYtZTgwMi00MWRkLWExOGUtZTQ3NGQ5YjIyZTkzIiwidG9rZW5fdXNlIjoiaWQiLCJhdXRoX3RpbWUiOjE3MTk2MDkyMzksImV4cCI6MTcxOTYxMjgzOSwiaWF0IjoxNzE5NjA5MjM5LCJqdGkiOiI5NGUzOTUzOS1kMjJiLTQ4NDAtYTE3Mi1lNjNhMTNiM2Q4OGUiLCJlbWFpbCI6IjIwMjEzdG4xMjhAdXRlei5lZHUubXgifQ.FdJq1zIHgcfJCnICTkvILLMgmhhDnEwDVuXc9M927L7TirCHdTxsw9qK1N3aWNM4Knay95yJnNuZHKr3jLmtyXFSPBqeF0KKBneCux3qDRwH90TjoSkThAli-F8E9of3VauPurM3XHWmvBHrgHgPKtyQ-ghzG4nRxd_AehYkf4PyLw__m1ajnhgxAOtntju0h_mGOszyn-_O9h5LJVIlcaaksKLsIHc5kyJTqXYPW6Hc7NhQExhfHeWFVEQAKPM15XzPWW0j8gSCBZZZTL5kAYWgDbd4ohlcCQ7WYqsV5G57Wlgi3lhpcK66lV1ukH6ZvubkRS9M1IfyCz0jsM2W7A'
-        }),
-        'body': json.dumps({
-            'id': 3
-        })
-    }
-    response = app.lambda_handler(evento, "")
-    print(response)
+class TestLambdaHandler(unittest.TestCase):
+
+    @patch('users.disableUser.app.validate_token')
+    @patch('users.disableUser.app.validate_user_role')
+    @patch('users.disableUser.app.get_user')
+    @patch('users.disableUser.app.change_status_user')
+    def test_successful_status_change(self, mock_change_status_user, mock_get_user, mock_validate_user_role, mock_validate_token):
+        #Test que simula que el usuario es admin
+        mock_validate_token.return_value = ({'user': 'admin'}, None)
+        mock_validate_user_role.return_value = True
+        # ahora un usuario activo que se cambiara a incativo
+        mock_get_user.return_value = {'status': 'activo'}
+        mock_change_status_user.return_value = True
+
+        # Body con id del usuario
+        event = {
+            "body": json.dumps({"id": 1})
+        }
+
+        response = app.lambda_handler(event, None)
+
+        self.assertEqual(response['statusCode'], 200)
+        self.assertIn("message", json.loads(response['body']))
+        self.assertEqual(json.loads(response['body'])['message'], "Status del usuario modificado exitosamente.")
+        print(json.loads(response['body'])['message'])
+
+    @patch('users.disableUser.app.validate_token')
+    @patch('users.disableUser.app.validate_user_role')
+    def test_invalid_token(self, mock_validate_user_role, mock_validate_token):
+        # Simula que el token no es válido
+        mock_validate_token.return_value = (None, "Token inválido")
+
+        event = {
+            "body": json.dumps({"id": 1})
+        }
+
+        response = app.lambda_handler(event, None)
+
+        self.assertEqual(response['statusCode'], 401)
+        self.assertIn("message", json.loads(response['body']))
+        self.assertEqual(json.loads(response['body'])['message'], "Token inválido")
+        print(json.loads(response['body'])['message'])
+
+    @patch('users.disableUser.app.validate_token')
+    @patch('users.disableUser.app.validate_user_role')
+    def test_insufficient_permissions(self, mock_validate_user_role, mock_validate_token):
+        # Test de usuario sin permisos osea no admin xd
+        mock_validate_token.return_value = ({'user': 'user'}, None)
+        mock_validate_user_role.return_value = False
+
+        event = {
+            "body": json.dumps({"id": 1})
+        }
+
+        response = app.lambda_handler(event, None)
+
+        self.assertEqual(response['statusCode'], 403)
+        self.assertIn("message", json.loads(response['body']))
+        self.assertEqual(json.loads(response['body'])['message'], "No tienes permisos para realizar esta acción.")
+        print(json.loads(response['body'])['message'])
+    @patch('users.disableUser.app.validate_token')
+    @patch('users.disableUser.app.validate_user_role')
+    @patch('users.disableUser.app.get_user')
+    def test_user_not_found(self, mock_get_user, mock_validate_user_role, mock_validate_token):
+        # test token valido y admin pero no encontrara el usuaio
+        mock_validate_token.return_value = ({'user': 'admin'}, None)
+        mock_validate_user_role.return_value = True
+        # simulamos que no retorna ningun usuario
+        mock_get_user.return_value = None
+
+        event = {
+            "body": json.dumps({"id": 1})
+        }
+
+        response = app.lambda_handler(event, None)
+
+        self.assertEqual(response['statusCode'], 404)
+        self.assertIn("message", json.loads(response['body']))
+        self.assertEqual(json.loads(response['body'])['message'], "No se encontró ningun usuario con ese uid.")
+        print(json.loads(response['body'])['message'])
+
+    @patch('users.disableUser.app.validate_token')
+    @patch('users.disableUser.app.validate_user_role')
+    @patch('users.disableUser.app.get_user')
+    @patch('users.disableUser.app.change_status_user')
+    def test_change_status_user_failure(self, mock_change_status_user, mock_get_user, mock_validate_user_role, mock_validate_token):
+        # token valido y admin
+        mock_validate_token.return_value = ({'user': 'admin'}, None)
+        mock_validate_user_role.return_value = True
+        # usuario activo
+        mock_get_user.return_value = {'status': 'activo'}
+        # pero forzamos un retorno falso simulando un error de la base de dato s
+        mock_change_status_user.return_value = False
+
+        event = {
+            "body": json.dumps({"id": 1})
+        }
+
+        response = app.lambda_handler(event, None)
+
+        self.assertEqual(response['statusCode'], 500)
+        self.assertIn("message", json.loads(response['body']))
+        self.assertEqual(json.loads(response['body'])['message'], "Error al modificar el status del usuario.")
+        print(json.loads(response['body'])['message'])
+
+    @patch('users.disableUser.app.validate_token')
+    @patch('users.disableUser.app.validate_user_role')
+    @patch('users.disableUser.app.get_user')
+    @patch('users.disableUser.app.change_status_user')
+    def test_missing_body(self, mock_change_status_user, mock_get_user, mock_validate_user_role, mock_validate_token):
+        # test para probar que valide que este el campo id en el body
+        mock_validate_token.return_value = ({'user': 'admin'}, None)
+        mock_validate_user_role.return_value = True
+
+        event = {
+            "body": json.dumps({"otroCampo":"Josafat"})
+        }
+
+        response = app.lambda_handler(event, None)
+
+        self.assertEqual(response['statusCode'], 400)
+        self.assertIn("message", json.loads(response['body']))
+        self.assertEqual(json.loads(response['body'])['message'], "El campo id es requerido.")
+        print(json.loads(response['body'])['message'])
+
+    @patch('users.disableUser.app.validate_token')
+    @patch('users.disableUser.app.validate_user_role')
+    @patch('users.disableUser.app.get_user')
+    @patch('users.disableUser.app.change_status_user')
+    def test_client_error(self, mock_change_status_user, mock_get_user, mock_validate_user_role, mock_validate_token):
+        # Simula el client error que dispara la excepcion
+        mock_validate_token.side_effect = ClientError({"Error": {"Code": "Error", "Message": "Error"}}, "Operation")
+
+        event = {
+            "body": json.dumps({"id": 1})
+        }
+
+        response = app.lambda_handler(event, None)
+
+        self.assertEqual(response['statusCode'], 400)
+        self.assertIn("message", json.loads(response['body']))
+        self.assertIn("Error en la conexión", json.loads(response['body'])['message'])
+        print(json.loads(response['body'])['message'])
+
+if __name__ == '__main__':
+    unittest.main()
