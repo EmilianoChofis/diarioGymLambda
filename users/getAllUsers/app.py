@@ -20,12 +20,12 @@ def get_user_role(sub):
             Filter=f'sub = "{sub}"'
         )
 
-        # Verificar si el usuario fue encontrado
         if not response['Users']:
             logging.warning(f"Usuario con sub {sub} no encontrado.")
             return None
 
         # Obtener los atributos del usuario
+        logging.warning(f"Usuarios encontrados: {response}")
         user = response['Users'][0]
         attributes = user.get('Attributes', [])
         for attribute in attributes:
