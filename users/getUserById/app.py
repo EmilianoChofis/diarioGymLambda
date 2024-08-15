@@ -24,7 +24,7 @@ def lambda_handler(event, __):
 
     data = json.loads(body)
 
-    user_id = data.get('id')
+    userUid = data.get('userUid')
     connection = connect_to_db()
 
     if connection is None:
@@ -41,7 +41,7 @@ def lambda_handler(event, __):
             })
         }
 
-    if not user_id:
+    if not userUid:
         return {
             'statusCode': 400,
             'headers': {
@@ -51,28 +51,14 @@ def lambda_handler(event, __):
                 'Access-Control-Allow-Methods': 'OPTIONS,POST,GET,PUT,DELETE'
             },
             'body': json.dumps({
-                "message": "El campo id es requerido."
-            })
-        }
-
-    if not isinstance(user_id, int):
-        return {
-            'statusCode': 400,
-            'headers': {
-                'Access-Control-Allow-Origin': '*',
-                'Access-Control-Allow-Credentials': 'true',
-                'Access-Control-Allow-Headers': 'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token',
-                'Access-Control-Allow-Methods': 'OPTIONS,POST,GET,PUT,DELETE'
-            },
-            'body': json.dumps({
-                "message": "El campo id debe ser un número."
+                "message": "El campo userUid es requerido."
             })
         }
 
     try:
         with connection.cursor() as cursor:
-            sql = "SELECT username, email, role_id, enable FROM users_inc WHERE id = %s"
-            cursor.execute(sql, (user_id,))
+            sql = "SELECT * FROM users WHERE uid = %s"
+            cursor.execute(sql, (userUid,))
             result = cursor.fetchone()
             connection.commit()
             if result:

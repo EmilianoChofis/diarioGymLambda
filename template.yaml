@@ -188,6 +188,11 @@ Resources:
     Properties:
       Name: TeamApi
       StageName: Prod
+      Auth:
+        DefaultAuthorizer: CognitoAuthorizer
+        Authorizers:
+          CognitoAuthorizer:
+            UserPoolArn: !GetAtt UserPool.Arn
       Cors:
         AllowMethods: "'POST,GET,OPTIONS,DELETE,PUT,PATCH'"
         AllowHeaders: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
@@ -200,6 +205,11 @@ Resources:
     Properties:
       Name: RoutineApi
       StageName: Prod
+      Auth:
+        DefaultAuthorizer: CognitoAuthorizer
+        Authorizers:
+          CognitoAuthorizer:
+            UserPoolArn: !GetAtt UserPool.Arn
       Cors:
         AllowMethods: "'POST,GET,OPTIONS,DELETE,PUT,PATCH'"
         AllowHeaders: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
@@ -212,6 +222,11 @@ Resources:
     Properties:
       Name: ExercisesApi
       StageName: Prod
+      Auth:
+        DefaultAuthorizer: CognitoAuthorizer
+        Authorizers:
+          CognitoAuthorizer:
+            UserPoolArn: !GetAtt UserPool.Arn
       Cors:
           AllowMethods: "'POST,GET,OPTIONS,DELETE,PUT,PATCH'"
           AllowHeaders: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
