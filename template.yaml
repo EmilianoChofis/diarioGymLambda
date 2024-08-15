@@ -164,6 +164,12 @@ Resources:
         Authorizers:
           CognitoAuthorizer:
             UserPoolArn: !GetAtt UserPool.Arn
+      Cors:
+        AllowMethods: "'POST,GET,OPTIONS,DELETE,PUT,PATCH'"
+        AllowHeaders: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+        AllowOrigin: "'*'"
+        MaxAge: "'600'"
+        AllowCredentials: false
 
   AuthApi:
     Type: AWS::Serverless::Api
