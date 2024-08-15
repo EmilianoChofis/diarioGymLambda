@@ -167,9 +167,9 @@ Resources:
       Cors:
         AllowMethods: "'POST,GET,OPTIONS,DELETE,PUT,PATCH'"
         AllowHeaders: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
-        AllowOrigin: "'*'"
+        AllowOrigin: "'www.example.com'"
         MaxAge: "'600'"
-        AllowCredentials: false
+        AllowCredentials: true
 
   AuthApi:
     Type: AWS::Serverless::Api
@@ -196,9 +196,9 @@ Resources:
       Cors:
         AllowMethods: "'POST,GET,OPTIONS,DELETE,PUT,PATCH'"
         AllowHeaders: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
-        AllowOrigin: "'*'"
+        AllowOrigin: "'www.example.com'"
         MaxAge: "'600'"
-        AllowCredentials: false
+        AllowCredentials: true
 
   RoutineApi:
     Type: AWS::Serverless::Api
@@ -213,9 +213,9 @@ Resources:
       Cors:
         AllowMethods: "'POST,GET,OPTIONS,DELETE,PUT,PATCH'"
         AllowHeaders: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
-        AllowOrigin: "'*'"
+        AllowOrigin: "'www.example.com'"
         MaxAge: "'600'"
-        AllowCredentials: false
+        AllowCredentials: true
 
   ExercisesApi:
     Type: AWS::Serverless::Api
@@ -230,9 +230,9 @@ Resources:
       Cors:
           AllowMethods: "'POST,GET,OPTIONS,DELETE,PUT,PATCH'"
           AllowHeaders: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
-          AllowOrigin: "'*'"
+          AllowOrigin: "'www.example.com'"
           MaxAge: "'600'"
-          AllowCredentials: false
+          AllowCredentials: true
 
   GetAllUsersFunction:
     Type: AWS::Serverless::Function
