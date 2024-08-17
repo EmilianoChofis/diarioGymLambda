@@ -2,7 +2,7 @@ import logging
 from datetime import datetime
 
 import pymysql
-from db_conn import connect_to_db
+from .db_conn import connect_to_db
 
 
 def user_exists_in_db(uid):

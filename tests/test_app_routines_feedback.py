@@ -85,7 +85,7 @@ class TestLambdaHandler(unittest.TestCase):
     def test_missing_body(self, mock_validate_user_role, mock_validate_token):
         mock_validate_token.return_value = ({'cognito:groups': ['Couch']}, None)
         mock_validate_user_role.return_value = True
-#tes tsin body
+        #tes tsin body
         event = {
             'body': {}
         }

@@ -2,8 +2,8 @@ import json
 import logging
 from botocore.exceptions import ClientError
 
-from queries import exercise_exists, register_routine_exercise, routine_exists_today, user_exists_in_db
-from validate_token import validate_token, validate_user_role
+from .queries import exercise_exists, register_routine_exercise, routine_exists_today, user_exists_in_db
+from .validate_token import validate_token, validate_user_role
 
 
 def lambda_handler(event, __):
