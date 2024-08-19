@@ -12,7 +12,7 @@ def get_teams():
             result = cursor.fetchall()
             return result
     except pymysql.MySQLError as e:
-        logging.error(f"ERROR: {e}")
+        logging.error(f"ERROR AL TRAER EQUIPOS: {e}")
         raise e
     finally:
         connection.close()
@@ -23,11 +23,11 @@ def get_users_from_team(team_id):
     try:
         with connection.cursor() as cursor:
             sql = "SELECT u.* FROM teams t INNER JOIN user_group ug ON t.id = ug.team_id INNER JOIN users u ON ug.user_id = u.uid WHERE t.id = %s"
-            cursor.execute(sql, (team_id,))
+            cursor.execute(sql, (team_id))
             result = cursor.fetchall()
             return result
     except pymysql.MySQLError as e:
-        logging.error(f"ERROR: {e}")
+        logging.error(f"ERROR AL TRAER USUARIOS DEL EQUIPO: {e}")
         raise e
     finally:
         connection.close()
@@ -37,11 +37,11 @@ def get_couch_by_uid(uid):
     try:
         with connection.cursor() as cursor:
             sql = "SELECT * FROM users WHERE uid = %s"
-            cursor.execute(sql, (uid,))
+            cursor.execute(sql, (uid))
             result = cursor.fetchone()
             return result
     except pymysql.MySQLError as e:
-        logging.error(f"ERROR: {e}")
+        logging.error(f"ERROR AL TRAER INFO DEL COUCH: {e}")
         raise e
     finally:
         connection.close()
