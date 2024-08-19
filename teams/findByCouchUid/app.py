@@ -69,7 +69,7 @@ def lambda_handler(event, __):
                 "body": json.dumps({"message": "El campo couchUid es requerido."})
             }
 
-        team = get_team_by_couch_uid(id)
+        team = get_team_by_couch_uid(couchUid)
 
         if team is None:
             return {
@@ -84,6 +84,8 @@ def lambda_handler(event, __):
                     "message": "No existe ningun equipo con ese id"
                 })
             }
+
+        logging.warning(team)
 
         team['users'] = []
         users = get_users_from_team(team['id'])

@@ -41,6 +41,9 @@ def lambda_handler(event, __):
 
         teams = get_teams()
 
+        logging.warning(teams)
+
+
         if teams is not None:
             for team in teams:
                 team['users'] = []
@@ -49,6 +52,7 @@ def lambda_handler(event, __):
                     team['users'].append(user)
 
                 couch = get_couch_by_uid(team['couch_id'])
+                logging.warning(couch)
                 team['couch'] = couch[0] if couch else None
 
         return {
