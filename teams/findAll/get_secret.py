@@ -19,7 +19,7 @@ def get_secret():
             SecretId=secret_name
         )
     except ClientError as e:
-        logging.error(f"ERROR: {e}")
+        logging.error(f"ERROR DE SECRETS: {e}")
         raise e
 
     secret = get_secret_value_response['SecretString']

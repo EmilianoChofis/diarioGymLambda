@@ -94,7 +94,7 @@ def lambda_handler(event, __):
                 team['users'].append(user)
 
         couch = get_couch_by_uid(team['couch_id'])
-        team['couch'] = couch[0] if couch else None
+        team['couch'] = couch if couch else None
 
         return {
             'statusCode': 200,
