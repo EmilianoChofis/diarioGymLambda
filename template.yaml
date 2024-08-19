@@ -592,6 +592,25 @@ Resources:
           DB_NAME: Chomfit
           SECRET_NAME: !Ref MyDBSecret
 
+  FindTeamByCouchUidFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: teams/findByCouchUid/
+      Handler: app.lambda_handler
+      Role: !GetAtt LambdaExecutionRole.Arn
+      Events:
+        FindTeamByCouchUid:
+          Type: Api
+          Properties:
+            RestApiId: !Ref TeamApi
+            Path: /find_by_couch_uid
+            Method: post
+      Environment:
+        Variables:
+          DB_HOST: !GetAtt RelationalDatabase.Endpoint.Address
+          DB_NAME: Chomfit
+          SECRET_NAME: !Ref MyDBSecret
+
   RegisterRoutineFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -746,6 +765,12 @@ Outputs:
   LeaveTeamFunctionArn:
     Description: Leave team Lambda Function ARN
     Value: !GetAtt LeaveTeamFunction.Arn
+  FindTeamByCouchUidApiUrl:
+    Description: API Gateway endpoint URL with path find_by_couch_uid
+    Value: !Sub https://${TeamApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/find_by_couch_uid
+  FindTeamByCouchUidFunctionArn:
+    Description: Find team by couch uid Lambda Function ARN
+    Value: !GetAtt FindTeamByCouchUidFunction.Arn
   RegisterRoutineApiUrl:
     Description: API Gateway endpoint URL with path register_routine
     Value: !Sub https://${RoutineApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/register_routine

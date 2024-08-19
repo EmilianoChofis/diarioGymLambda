@@ -2,7 +2,7 @@ import json
 import logging
 from botocore.exceptions import ClientError
 
-from queries import get_teams
+from queries import get_teams, get_users_from_team, get_couch_by_uid
 from validate_token import validate_token, validate_user_role
 
 
@@ -40,6 +40,16 @@ def lambda_handler(event, __):
             }
 
         teams = get_teams()
+
+        if teams is not None:
+            for team in teams:
+                team['users'] = []
+                users = get_users_from_team(team['id'])
+                for user in users:
+                    team['users'].append(user)
+
+                couch = get_couch_by_uid(team['couch_id'])
+                team['couch'] = couch[0] if couch else None
 
         return {
             'statusCode': 200,
