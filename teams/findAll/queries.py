@@ -22,10 +22,7 @@ def get_users_from_team(team_id):
     connection = connect_to_db()
     try:
         with connection.cursor() as cursor:
-            sql = ("SELECT u.* FROM teams t "
-                   "INNER JOIN user_group ug ON t.id = ug.team_id "
-                   "INNER JOIN users u ON ug.user_id = u.uid "
-                   "WHERE t.id = %s;")
+            sql = "SELECT u.* FROM teams t IN+NER JOIN user_group ug ON t.id = ug.team_id INNER JOIN users u ON ug.user_id = u.uid WHERE t.id = %s;"
             cursor.execute(sql, (team_id,))
             result = cursor.fetchall()
             return result
