@@ -2,8 +2,8 @@ import json
 import logging
 from botocore.exceptions import ClientError
 
-from queries import user_exists_in_db, user_has_team, find_all_by_couch
-from validate_token import validate_token, validate_user_role
+from .queries import get_users_from_team, get_user_routines, get_routine_exercises, get_team_by_id
+from .validate_token import validate_token, validate_user_role
 
 
 def lambda_handler(event, __):
@@ -40,9 +40,9 @@ def lambda_handler(event, __):
                 })
             }
 
-        body_parameters = json.loads(event["body"])
-
-        if not body_parameters:
+        try:
+            body_parameters = json.loads(event["body"])
+        except Exception:
             return {
                 'statusCode': 400,
                 'headers': {
@@ -56,9 +56,9 @@ def lambda_handler(event, __):
                 })
             }
 
-        couchUid = body_parameters.get("couchUid")
+        teamId = body_parameters.get("teamId")
 
-        if couchUid is None:
+        if teamId is None:
             return {
                 "statusCode": 400,
                 'headers': {
@@ -67,10 +67,10 @@ def lambda_handler(event, __):
                     'Access-Control-Allow-Headers': 'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token',
                     'Access-Control-Allow-Methods': 'OPTIONS,POST'
                 },
-                "body": json.dumps({"message": "EL campo couchUid es requerido."})
+                "body": json.dumps({"message": "EL campo teamId es requerido."})
             }
 
-        if user_exists_in_db(couchUid) is False:
+        if get_team_by_id(teamId) is None:
             return {
                 'statusCode': 404,
                 'headers': {
@@ -80,15 +80,15 @@ def lambda_handler(event, __):
                     'Access-Control-Allow-Methods': 'OPTIONS,POST'
                 },
                 'body': json.dumps({
-                    "message": "No se encontró ningun usuario con ese uid."
+                    "message": "No se encontró ningun equipo con ese id."
                 })
             }
 
-        team = user_has_team(couchUid)
+        users = get_users_from_team(teamId)
 
-        if team is None:
+        if users is None:
             return {
-                'statusCode': 409,
+                'statusCode': 404,
                 'headers': {
                     'Access-Control-Allow-Origin': '*',
                     'Access-Control-Allow-Credentials': 'true',
@@ -96,11 +96,18 @@ def lambda_handler(event, __):
                     'Access-Control-Allow-Methods': 'OPTIONS,POST'
                 },
                 'body': json.dumps({
-                    "message": "El couch no tiene un equipo registrado."
+                    "message": "El equipo no tiene usuarios registrados."
                 })
             }
 
-        users = find_all_by_couch(couchUid)
+        for user in users:
+            userRoutines = get_user_routines (user["uid"])
+
+            if userRoutines is not None:
+                for routine in userRoutines:
+                    routineExercises = get_routine_exercises(routine["id"])
+                    routine["exercises"] = routineExercises
+                    user["routines"] = userRoutines
 
         return {
             'statusCode': 200,

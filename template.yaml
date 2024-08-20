@@ -668,6 +668,25 @@ Resources:
               DB_NAME: Chomfit
               SECRET_NAME: !Ref MyDBSecret
 
+  FindAllTeamRoutinesFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: routines/findTeamRoutines/
+      Handler: app.lambda_handler
+      Role: !GetAtt LambdaExecutionRole.Arn
+      Events:
+        FindAllTeamRoutines:
+          Type: Api
+          Properties:
+            RestApiId: !Ref RoutineApi
+            Path: /find_all_team_routines
+            Method: post
+      Environment:
+        Variables:
+          DB_HOST: !GetAtt RelationalDatabase.Endpoint.Address
+          DB_NAME: Chomfit
+          SECRET_NAME: !Ref MyDBSecret
+
 Outputs:
   GetUserByIdApiUrl:
     Description: API Gateway endpoint URL with path get_user_by_id
@@ -786,6 +805,12 @@ Outputs:
   RegisterFeedbackFunctionArn:
     Description: Register feedback Lambda Function ARN
     Value: !GetAtt RegisterFeedbackFunction.Arn
+  FindAllTeamRoutinesApiUrl:
+    Description: API Gateway endpoint URL with path find_all_team_routines
+    Value: !Sub https://${RoutineApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/find_all_team_routines
+  FindAllTeamRoutinesFunctionArn:
+    Description: Find all team routines Lambda Function ARN
+    Value: !GetAtt FindAllTeamRoutinesFunction.Arn
   LambdaExecutionRoleArn:
     Description: Lambda Execution Role ARN
     Value: !GetAtt LambdaExecutionRole.Arn
