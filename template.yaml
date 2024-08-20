@@ -196,7 +196,7 @@ Resources:
       Cors:
         AllowMethods: "'POST,GET,OPTIONS,DELETE,PUT,PATCH'"
         AllowHeaders: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
-        AllowOrigin: "'www.example.com'"
+        AllowOrigin: "'https://main.d2mfxusroxua9n.amplifyapp.com'"
         MaxAge: "'600'"
         AllowCredentials: true
 
@@ -213,7 +213,7 @@ Resources:
       Cors:
         AllowMethods: "'POST,GET,OPTIONS,DELETE,PUT,PATCH'"
         AllowHeaders: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
-        AllowOrigin: "'www.example.com'"
+        AllowOrigin: "'https://main.d2mfxusroxua9n.amplifyapp.com'"
         MaxAge: "'600'"
         AllowCredentials: true
 
@@ -230,7 +230,7 @@ Resources:
       Cors:
           AllowMethods: "'POST,GET,OPTIONS,DELETE,PUT,PATCH'"
           AllowHeaders: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
-          AllowOrigin: "'www.example.com'"
+          AllowOrigin: "'https://main.d2mfxusroxua9n.amplifyapp.com'"
           MaxAge: "'600'"
           AllowCredentials: true
 
