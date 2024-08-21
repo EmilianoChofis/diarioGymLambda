@@ -100,8 +100,12 @@ def lambda_handler(event, __):
                 })
             }
 
+        logging.warning(f"USERS: {users}")
+
         for user in users:
-            userRoutines = get_user_routines (user["uid"])
+            userRoutines = get_user_routines(user["uid"])
+
+            logging.warning(f"USER ROUTINES: {userRoutines}")
 
             if userRoutines is not None:
                 for routine in userRoutines:

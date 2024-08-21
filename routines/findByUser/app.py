@@ -67,10 +67,8 @@ def lambda_handler(event, __):
                     'Access-Control-Allow-Headers': 'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token',
                     'Access-Control-Allow-Methods': 'OPTIONS,POST'
                 },
-                "body": json.dumps({"message": "EL campo teamId es requerido."})
+                "body": json.dumps({"message": "EL campo userUid es requerido."})
             }
-
-
 
         user = get_user_by_uid(userUid)
 
@@ -88,7 +86,7 @@ def lambda_handler(event, __):
                 })
             }
 
-        userRoutines = get_user_routines (user["uid"])
+        userRoutines = get_user_routines(user["uid"])
 
         if userRoutines is not None:
             for routine in userRoutines:
