@@ -2,8 +2,8 @@ import json
 import logging
 from botocore.exceptions import ClientError
 
-from queries import user_exists_in_db, user_has_team, get_couch_team, remove_user_team
-from validate_token import validate_token, validate_user_role
+from .queries import user_exists_in_db, user_has_team, get_couch_team, remove_user_team
+from .validate_token import validate_token, validate_user_role
 
 
 def lambda_handler(event, __):
@@ -39,10 +39,10 @@ def lambda_handler(event, __):
                     "message": "No tienes permisos para realizar esta acción."
                 })
             }
+        try:
+            body_parameters = json.loads(event["body"])
 
-        body_parameters = json.loads(event["body"])
-
-        if not body_parameters:
+        except Exception:
             return {
                 'statusCode': 400,
                 'headers': {

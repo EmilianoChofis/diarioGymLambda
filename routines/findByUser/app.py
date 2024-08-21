@@ -2,11 +2,12 @@ import json
 import logging
 from botocore.exceptions import ClientError
 
-from .queries import get_team_by_id, get_users_from_team, get_couch_by_uid
+from .queries import get_user_routines, get_routine_exercises, get_user_by_uid
 from .validate_token import validate_token, validate_user_role
 
 
 def lambda_handler(event, __):
+
     try:
 
         claims, error_message = validate_token(event)
@@ -38,9 +39,9 @@ def lambda_handler(event, __):
                     "message": "No tienes permisos para realizar esta acción."
                 })
             }
+
         try:
             body_parameters = json.loads(event["body"])
-
         except Exception:
             return {
                 'statusCode': 400,
@@ -55,9 +56,9 @@ def lambda_handler(event, __):
                 })
             }
 
-        id = body_parameters.get("id")
+        userUid = body_parameters.get("userUid")
 
-        if id is None:
+        if userUid is None:
             return {
                 "statusCode": 400,
                 'headers': {
@@ -66,12 +67,12 @@ def lambda_handler(event, __):
                     'Access-Control-Allow-Headers': 'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token',
                     'Access-Control-Allow-Methods': 'OPTIONS,POST'
                 },
-                "body": json.dumps({"message": "El campo id es requerido."})
+                "body": json.dumps({"message": "EL campo userUid es requerido."})
             }
 
-        team = get_team_by_id(id)
+        user = get_user_by_uid(userUid)
 
-        if team is None:
+        if user is None:
             return {
                 'statusCode': 404,
                 'headers': {
@@ -81,18 +82,17 @@ def lambda_handler(event, __):
                     'Access-Control-Allow-Methods': 'OPTIONS,POST'
                 },
                 'body': json.dumps({
-                    "message": "No existe ningun equipo con ese id"
+                    "message": "El equipo no tiene usuarios registrados."
                 })
             }
 
-        team['users'] = []
-        users = get_users_from_team(team['id'])
-        if users is not None:
-            for user in users:
-                team['users'].append(user)
+        userRoutines = get_user_routines(user["uid"])
 
-        couch = get_couch_by_uid(team['couch_id'])
-        team['couch'] = couch if couch else None
+        if userRoutines is not None:
+            for routine in userRoutines:
+                routineExercises = get_routine_exercises(routine["id"])
+                routine["exercises"] = routineExercises
+                user["routines"] = userRoutines
 
         return {
             'statusCode': 200,
@@ -103,8 +103,8 @@ def lambda_handler(event, __):
                 'Access-Control-Allow-Methods': 'OPTIONS,POST'
             },
             'body': json.dumps({
-                "message": "Equipo encontrado",
-                "data": team
+                "message": "Lista de usuarios encontrados dentro del equipo del couch.",
+                "data": user
             })
         }
 

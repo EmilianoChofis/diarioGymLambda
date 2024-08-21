@@ -1,14 +1,12 @@
 import json
-import logging
+import  logging
 from botocore.exceptions import ClientError
 
-from .queries import get_team_by_id, get_users_from_team, get_couch_by_uid
+from .queries import get_team_by_couch_id
 from .validate_token import validate_token, validate_user_role
 
-
-def lambda_handler(event, __):
+def lamda_handler(event, __):
     try:
-
         claims, error_message = validate_token(event)
 
         if error_message:
@@ -25,7 +23,7 @@ def lambda_handler(event, __):
                 })
             }
 
-        if not validate_user_role(claims, ['Couch', 'Admin', 'User']):
+        if not validate_user_role(claims, ['Couch']):
             return {
                 'statusCode': 403,
                 'headers': {
@@ -40,7 +38,6 @@ def lambda_handler(event, __):
             }
         try:
             body_parameters = json.loads(event["body"])
-
         except Exception:
             return {
                 'statusCode': 400,
@@ -55,21 +52,23 @@ def lambda_handler(event, __):
                 })
             }
 
-        id = body_parameters.get("id")
+        couch_id = body_parameters.get("couch_id")
 
-        if id is None:
+        if couch_id is None:
             return {
-                "statusCode": 400,
+                'statusCode': 400,
                 'headers': {
                     'Access-Control-Allow-Origin': '*',
                     'Access-Control-Allow-Credentials': 'true',
                     'Access-Control-Allow-Headers': 'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token',
                     'Access-Control-Allow-Methods': 'OPTIONS,POST'
                 },
-                "body": json.dumps({"message": "El campo id es requerido."})
+                'body': json.dumps({
+                    "message": "El campo 'couch_id' es requerido para la petición."
+                })
             }
 
-        team = get_team_by_id(id)
+        team = get_team_by_couch_id(couch_id)
 
         if team is None:
             return {
@@ -81,18 +80,9 @@ def lambda_handler(event, __):
                     'Access-Control-Allow-Methods': 'OPTIONS,POST'
                 },
                 'body': json.dumps({
-                    "message": "No existe ningun equipo con ese id"
+                    "message": "No se encontró el equipo."
                 })
             }
-
-        team['users'] = []
-        users = get_users_from_team(team['id'])
-        if users is not None:
-            for user in users:
-                team['users'].append(user)
-
-        couch = get_couch_by_uid(team['couch_id'])
-        team['couch'] = couch if couch else None
 
         return {
             'statusCode': 200,
@@ -107,11 +97,10 @@ def lambda_handler(event, __):
                 "data": team
             })
         }
-
     except ClientError as e:
         logging.error(f"ERROR: {e}")
         return {
-            'statusCode': 400,
+            'statusCode': 500,
             'headers': {
                 'Access-Control-Allow-Origin': '*',
                 'Access-Control-Allow-Credentials': 'true',
@@ -134,6 +123,6 @@ def lambda_handler(event, __):
                 'Access-Control-Allow-Methods': 'OPTIONS,POST'
             },
             'body': json.dumps({
-                'message': f"Error de servidor. {e}"
+                'message': f"Error inesperado. {e}"
             })
         }

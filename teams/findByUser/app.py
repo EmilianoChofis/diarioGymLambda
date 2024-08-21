@@ -2,7 +2,7 @@ import json
 import logging
 from botocore.exceptions import ClientError
 
-from .queries import get_team_by_id, get_users_from_team, get_couch_by_uid
+from .queries import get_user, get_team_from_user
 from .validate_token import validate_token, validate_user_role
 
 
@@ -16,9 +16,8 @@ def lambda_handler(event, __):
                 'statusCode': 401,
                 'headers': {
                     'Access-Control-Allow-Origin': '*',
-                    'Access-Control-Allow-Credentials': 'true',
-                    'Access-Control-Allow-Headers': 'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token',
-                    'Access-Control-Allow-Methods': 'OPTIONS,POST'
+                    'Access-Control-Allow-Methods': '*',
+                    'Access-Control-Allow-Headers': '*'
                 },
                 'body': json.dumps({
                     "message": error_message
@@ -30,9 +29,8 @@ def lambda_handler(event, __):
                 'statusCode': 403,
                 'headers': {
                     'Access-Control-Allow-Origin': '*',
-                    'Access-Control-Allow-Credentials': 'true',
-                    'Access-Control-Allow-Headers': 'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token',
-                    'Access-Control-Allow-Methods': 'OPTIONS,POST'
+                    'Access-Control-Allow-Methods': '*',
+                    'Access-Control-Allow-Headers': '*'
                 },
                 'body': json.dumps({
                     "message": "No tienes permisos para realizar esta acción."
@@ -40,38 +38,35 @@ def lambda_handler(event, __):
             }
         try:
             body_parameters = json.loads(event["body"])
-
         except Exception:
             return {
                 'statusCode': 400,
                 'headers': {
                     'Access-Control-Allow-Origin': '*',
-                    'Access-Control-Allow-Credentials': 'true',
-                    'Access-Control-Allow-Headers': 'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token',
-                    'Access-Control-Allow-Methods': 'OPTIONS,POST'
+                    'Access-Control-Allow-Methods': '*',
+                    'Access-Control-Allow-Headers': '*'
                 },
                 'body': json.dumps({
                     "message": "El body es requerido para la petición."
                 })
             }
 
-        id = body_parameters.get("id")
+        userUid = body_parameters.get("userUid")
 
-        if id is None:
+        if userUid is None:
             return {
                 "statusCode": 400,
                 'headers': {
                     'Access-Control-Allow-Origin': '*',
-                    'Access-Control-Allow-Credentials': 'true',
-                    'Access-Control-Allow-Headers': 'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token',
-                    'Access-Control-Allow-Methods': 'OPTIONS,POST'
+                    'Access-Control-Allow-Methods': '*',
+                    'Access-Control-Allow-Headers': '*'
                 },
-                "body": json.dumps({"message": "El campo id es requerido."})
+                "body": json.dumps({"message": "El campo userUid es requerido."})
             }
 
-        team = get_team_by_id(id)
+        user = get_user(userUid)
 
-        if team is None:
+        if user is None:
             return {
                 'statusCode': 404,
                 'headers': {
@@ -81,18 +76,11 @@ def lambda_handler(event, __):
                     'Access-Control-Allow-Methods': 'OPTIONS,POST'
                 },
                 'body': json.dumps({
-                    "message": "No existe ningun equipo con ese id"
+                    "message": "No existe ningun usuario con ese uid"
                 })
             }
 
-        team['users'] = []
-        users = get_users_from_team(team['id'])
-        if users is not None:
-            for user in users:
-                team['users'].append(user)
-
-        couch = get_couch_by_uid(team['couch_id'])
-        team['couch'] = couch if couch else None
+        team = get_team_from_user(userUid)
 
         return {
             'statusCode': 200,

@@ -2,7 +2,7 @@ import json
 import logging
 from botocore.exceptions import ClientError
 
-from .queries import get_team_by_id, get_users_from_team, get_couch_by_uid
+from .queries import get_users_from_team, get_team_by_couch_uid, get_couch_by_uid
 from .validate_token import validate_token, validate_user_role
 
 
@@ -55,9 +55,9 @@ def lambda_handler(event, __):
                 })
             }
 
-        id = body_parameters.get("id")
+        couchUid = body_parameters.get("couchUid")
 
-        if id is None:
+        if couchUid is None:
             return {
                 "statusCode": 400,
                 'headers': {
@@ -66,10 +66,10 @@ def lambda_handler(event, __):
                     'Access-Control-Allow-Headers': 'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token',
                     'Access-Control-Allow-Methods': 'OPTIONS,POST'
                 },
-                "body": json.dumps({"message": "El campo id es requerido."})
+                "body": json.dumps({"message": "El campo couchUid es requerido."})
             }
 
-        team = get_team_by_id(id)
+        team = get_team_by_couch_uid(couchUid)
 
         if team is None:
             return {
@@ -84,6 +84,8 @@ def lambda_handler(event, __):
                     "message": "No existe ningun equipo con ese id"
                 })
             }
+
+        logging.warning(team)
 
         team['users'] = []
         users = get_users_from_team(team['id'])

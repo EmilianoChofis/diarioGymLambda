@@ -3,12 +3,12 @@ import pymysql
 from .db_conn import connect_to_db
 
 
-def get_team_by_id(team_id):
+def get_user(userId):
     connection = connect_to_db()
     try:
         with connection.cursor() as cursor:
-            sql = "SELECT * FROM teams WHERE id = %s"
-            cursor.execute(sql, (team_id,))
+            sql = "SELECT * FROM users WHERE uid = %s"
+            cursor.execute(sql, (userId,))
             result = cursor.fetchone()
             return result
     except pymysql.MySQLError as e:
@@ -17,12 +17,12 @@ def get_team_by_id(team_id):
     finally:
         connection.close()
 
-def get_users_from_team(team_id):
+def get_team_from_user(user_id):
     connection = connect_to_db()
     try:
         with connection.cursor() as cursor:
-            sql = "SELECT u.* FROM teams t INNER JOIN user_group ug ON t.id = ug.team_id INNER JOIN users u ON ug.user_id = u.uid WHERE t.id = %s"
-            cursor.execute(sql, (team_id,))
+            sql = "SELECT t.* FROM teams t INNER JOIN user_group ug ON t.id = ug.team_id WHERE ug.user_id = %s"
+            cursor.execute(sql, (user_id,))
             result = cursor.fetchall()
             return result
     except pymysql.MySQLError as e:

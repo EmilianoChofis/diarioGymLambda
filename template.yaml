@@ -160,10 +160,13 @@ Resources:
       Name: UserApi
       StageName: Prod
       Auth:
-        DefaultAuthorizer: CognitoAuthorizer
         Authorizers:
           CognitoAuthorizer:
             UserPoolArn: !GetAtt UserPool.Arn
+      Cors:
+        AllowMethods: "'POST,GET,OPTIONS,DELETE,PUT,PATCH'"
+        AllowHeaders: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+        AllowOrigin: "'*'"
 
   AuthApi:
     Type: AWS::Serverless::Api
@@ -174,44 +177,51 @@ Resources:
         AllowMethods: "'POST,GET,OPTIONS,DELETE,PUT,PATCH'"
         AllowHeaders: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
         AllowOrigin: "'*'"
-        MaxAge: "'600'"
-        AllowCredentials: false
 
   TeamApi:
     Type: AWS::Serverless::Api
     Properties:
       Name: TeamApi
       StageName: Prod
+      Auth:
+        Authorizers:
+          CognitoAuthorizer:
+            UserPoolArn: !GetAtt UserPool.Arn
       Cors:
         AllowMethods: "'POST,GET,OPTIONS,DELETE,PUT,PATCH'"
         AllowHeaders: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
         AllowOrigin: "'*'"
-        MaxAge: "'600'"
-        AllowCredentials: false
+
 
   RoutineApi:
     Type: AWS::Serverless::Api
     Properties:
       Name: RoutineApi
       StageName: Prod
+      Auth:
+        Authorizers:
+          CognitoAuthorizer:
+            UserPoolArn: !GetAtt UserPool.Arn
       Cors:
         AllowMethods: "'POST,GET,OPTIONS,DELETE,PUT,PATCH'"
         AllowHeaders: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
         AllowOrigin: "'*'"
-        MaxAge: "'600'"
-        AllowCredentials: false
+
 
   ExercisesApi:
     Type: AWS::Serverless::Api
     Properties:
       Name: ExercisesApi
       StageName: Prod
+      Auth:
+        Authorizers:
+          CognitoAuthorizer:
+            UserPoolArn: !GetAtt UserPool.Arn
       Cors:
-          AllowMethods: "'POST,GET,OPTIONS,DELETE,PUT,PATCH'"
-          AllowHeaders: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
-          AllowOrigin: "'*'"
-          MaxAge: "'600'"
-          AllowCredentials: false
+        AllowMethods: "'POST,GET,OPTIONS,DELETE,PUT,PATCH'"
+        AllowHeaders: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+        AllowOrigin: "'*'"
+
 
   GetAllUsersFunction:
     Type: AWS::Serverless::Function
@@ -233,6 +243,8 @@ Resources:
           DB_HOST: !GetAtt RelationalDatabase.Endpoint.Address
           DB_NAME: Chomfit
           SECRET_NAME: !Ref MyDBSecret
+          CLIENT_ID: !GetAtt MyUserPoolClient.ClientId
+          USER_POOL_ID: !Ref UserPool
 
   GetUserByIdFunction:
     Type: AWS::Serverless::Function
@@ -358,6 +370,10 @@ Resources:
         Variables:
           CLIENT_ID: !GetAtt MyUserPoolClient.ClientId
           POOL_ID: !Ref UserPool
+          DB_HOST: !GetAtt RelationalDatabase.Endpoint.Address
+          DB_NAME: Chomfit
+          SECRET_NAME: !Ref MyDBSecret
+          USER_POOL_ID: !Ref UserPool
 
   RegisterFunction:
     Type: AWS::Serverless::Function
@@ -508,9 +524,9 @@ Resources:
             Method: post
       Environment:
         Variables:
-            DB_HOST: !GetAtt RelationalDatabase.Endpoint.Address
-            DB_NAME: Chomfit
-            SECRET_NAME: !Ref MyDBSecret
+          DB_HOST: !GetAtt RelationalDatabase.Endpoint.Address
+          DB_NAME: Chomfit
+          SECRET_NAME: !Ref MyDBSecret
 
   AcceptUserTeamFunction:
     Type: AWS::Serverless::Function
@@ -569,6 +585,44 @@ Resources:
           DB_NAME: Chomfit
           SECRET_NAME: !Ref MyDBSecret
 
+  FindTeamByCouchUidFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: teams/findByCouchUid/
+      Handler: app.lambda_handler
+      Role: !GetAtt LambdaExecutionRole.Arn
+      Events:
+        FindTeamByCouchUid:
+          Type: Api
+          Properties:
+            RestApiId: !Ref TeamApi
+            Path: /find_by_couch_uid
+            Method: post
+      Environment:
+        Variables:
+          DB_HOST: !GetAtt RelationalDatabase.Endpoint.Address
+          DB_NAME: Chomfit
+          SECRET_NAME: !Ref MyDBSecret
+
+  FindTeamByUserFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: teams/findByUser/
+      Handler: app.lambda_handler
+      Role: !GetAtt LambdaExecutionRole.Arn
+      Events:
+        FindTeamByUser:
+          Type: Api
+          Properties:
+            RestApiId: !Ref TeamApi
+            Path: /find_by_user
+            Method: post
+      Environment:
+        Variables:
+          DB_HOST: !GetAtt RelationalDatabase.Endpoint.Address
+          DB_NAME: Chomfit
+          SECRET_NAME: !Ref MyDBSecret
+
   RegisterRoutineFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -610,7 +664,7 @@ Resources:
   RegisterFeedbackFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: feedback/register/
+      CodeUri: routines/feedback/
       Handler: app.lambda_handler
       Role: !GetAtt LambdaExecutionRole.Arn
       Events:
@@ -621,10 +675,48 @@ Resources:
             Path: /register_feedback
             Method: post
       Environment:
-          Variables:
-              DB_HOST: !GetAtt RelationalDatabase.Endpoint.Address
-              DB_NAME: Chomfit
-              SECRET_NAME: !Ref MyDBSecret
+        Variables:
+          DB_HOST: !GetAtt RelationalDatabase.Endpoint.Address
+          DB_NAME: Chomfit
+          SECRET_NAME: !Ref MyDBSecret
+
+  FindAllTeamRoutinesFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: routines/findTeamRoutines/
+      Handler: app.lambda_handler
+      Role: !GetAtt LambdaExecutionRole.Arn
+      Events:
+        FindAllTeamRoutines:
+          Type: Api
+          Properties:
+            RestApiId: !Ref RoutineApi
+            Path: /find_all_team_routines
+            Method: post
+      Environment:
+        Variables:
+          DB_HOST: !GetAtt RelationalDatabase.Endpoint.Address
+          DB_NAME: Chomfit
+          SECRET_NAME: !Ref MyDBSecret
+
+  FindByUserFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: routines/findByUser/
+      Handler: app.lambda_handler
+      Role: !GetAtt LambdaExecutionRole.Arn
+      Events:
+        FindByUser:
+          Type: Api
+          Properties:
+            RestApiId: !Ref RoutineApi
+            Path: /find_by_user
+            Method: post
+      Environment:
+        Variables:
+          DB_HOST: !GetAtt RelationalDatabase.Endpoint.Address
+          DB_NAME: Chomfit
+          SECRET_NAME: !Ref MyDBSecret
 
 Outputs:
   GetUserByIdApiUrl:
@@ -694,8 +786,8 @@ Outputs:
     Description: Register team Lambda Function ARN
     Value: !GetAtt RegisterTeamFunction.Arn
   FindAllTeamsApiUrl:
-      Description: API Gateway endpoint URL with path find_all_teams
-      Value: !Sub https://${TeamApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/find_all_teams
+    Description: API Gateway endpoint URL with path find_all_teams
+    Value: !Sub https://${TeamApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/find_all_teams
   FindAllTeamsFunctionArn:
     Description: Find all teams Lambda Function ARN
     Value: !GetAtt FindAllTeamsFunction.Arn
@@ -723,6 +815,18 @@ Outputs:
   LeaveTeamFunctionArn:
     Description: Leave team Lambda Function ARN
     Value: !GetAtt LeaveTeamFunction.Arn
+  FindTeamByCouchUidApiUrl:
+    Description: API Gateway endpoint URL with path find_by_couch_uid
+    Value: !Sub https://${TeamApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/find_by_couch_uid
+  FindTeamByCouchUidFunctionArn:
+    Description: Find team by couch uid Lambda Function ARN
+    Value: !GetAtt FindTeamByCouchUidFunction.Arn
+  FindTeamByUserApiUrl:
+    Description: API Gateway endpoint URL with path find_by_user
+    Value: !Sub https://${TeamApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/find_by_user
+  FindTeamByUserFunctionArn:
+    Description: Find team by user Lambda Function ARN
+    Value: !GetAtt FindTeamByUserFunction.Arn
   RegisterRoutineApiUrl:
     Description: API Gateway endpoint URL with path register_routine
     Value: !Sub https://${RoutineApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/register_routine
@@ -738,6 +842,18 @@ Outputs:
   RegisterFeedbackFunctionArn:
     Description: Register feedback Lambda Function ARN
     Value: !GetAtt RegisterFeedbackFunction.Arn
+  FindAllTeamRoutinesApiUrl:
+    Description: API Gateway endpoint URL with path find_all_team_routines
+    Value: !Sub https://${RoutineApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/find_all_team_routines
+  FindAllTeamRoutinesFunctionArn:
+    Description: Find all team routines Lambda Function ARN
+    Value: !GetAtt FindAllTeamRoutinesFunction.Arn
+  FindByUserApiUrl:
+    Description: API Gateway endpoint URL with path find_by_user
+    Value: !Sub https://${RoutineApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/find_by_user
+  FindByUserFunctionArn:
+    Description: Find by user Lambda Function ARN
+    Value: !GetAtt FindByUserFunction.Arn
   LambdaExecutionRoleArn:
     Description: Lambda Execution Role ARN
     Value: !GetAtt LambdaExecutionRole.Arn

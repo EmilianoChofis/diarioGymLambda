@@ -188,11 +188,8 @@ class TestLambdaHandler(unittest.TestCase):
     @patch('teams.accept_users.app.insert_user_group')
     def test_client_error(self, mock_insert_user_group, mock_number_of_members, mock_user_has_team, mock_get_team_by_id, mock_user_exists_in_db, mock_validate_user_role, mock_validate_token):
         mock_validate_token.side_effect = ClientError({"Error": {"Code": "500", "Message": "Client error"}}, "operation_name")
-        #client error, lo disparamos
-        #sip otra vez este test
-        #y no, no agrego comentarios
-        #innecesarios para sumar mas
-        #lineas de codigo en github
+        #client error, lo disparamos sip otra vez este test
+        #y no, no agrego comentarios innecesarios para sumar mas lineas de codigo en github
         event = {
             "body": json.dumps({
                 "team": {"id": "equipo1231"},
