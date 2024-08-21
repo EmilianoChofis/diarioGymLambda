@@ -160,14 +160,13 @@ Resources:
       Name: UserApi
       StageName: Prod
       Auth:
-        DefaultAuthorizer: CognitoAuthorizer
         Authorizers:
           CognitoAuthorizer:
             UserPoolArn: !GetAtt UserPool.Arn
       Cors:
         AllowMethods: "'POST,GET,OPTIONS,DELETE,PUT,PATCH'"
         AllowHeaders: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
-        AllowOrigin: "'www.example.com'"
+        AllowOrigin: "'https://main.d2mfxusroxua9n.amplifyapp.com'"
         MaxAge: "'600'"
         AllowCredentials: true
 
@@ -189,7 +188,6 @@ Resources:
       Name: TeamApi
       StageName: Prod
       Auth:
-        DefaultAuthorizer: CognitoAuthorizer
         Authorizers:
           CognitoAuthorizer:
             UserPoolArn: !GetAtt UserPool.Arn
@@ -206,7 +204,6 @@ Resources:
       Name: RoutineApi
       StageName: Prod
       Auth:
-        DefaultAuthorizer: CognitoAuthorizer
         Authorizers:
           CognitoAuthorizer:
             UserPoolArn: !GetAtt UserPool.Arn
@@ -223,7 +220,6 @@ Resources:
       Name: ExercisesApi
       StageName: Prod
       Auth:
-        DefaultAuthorizer: CognitoAuthorizer
         Authorizers:
           CognitoAuthorizer:
             UserPoolArn: !GetAtt UserPool.Arn
