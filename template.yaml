@@ -166,9 +166,7 @@ Resources:
       Cors:
         AllowMethods: "'POST,GET,OPTIONS,DELETE,PUT,PATCH'"
         AllowHeaders: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
-        AllowOrigin: "'https://main.d2mfxusroxua9n.amplifyapp.com'"
-        MaxAge: "'600'"
-        AllowCredentials: true
+        AllowOrigin: "'*'"
 
   AuthApi:
     Type: AWS::Serverless::Api
@@ -179,8 +177,6 @@ Resources:
         AllowMethods: "'POST,GET,OPTIONS,DELETE,PUT,PATCH'"
         AllowHeaders: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
         AllowOrigin: "'*'"
-        MaxAge: "'600'"
-        AllowCredentials: false
 
   TeamApi:
     Type: AWS::Serverless::Api
@@ -194,9 +190,8 @@ Resources:
       Cors:
         AllowMethods: "'POST,GET,OPTIONS,DELETE,PUT,PATCH'"
         AllowHeaders: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
-        AllowOrigin: "'https://main.d2mfxusroxua9n.amplifyapp.com'"
-        MaxAge: "'600'"
-        AllowCredentials: true
+        AllowOrigin: "'*'"
+
 
   RoutineApi:
     Type: AWS::Serverless::Api
@@ -210,9 +205,8 @@ Resources:
       Cors:
         AllowMethods: "'POST,GET,OPTIONS,DELETE,PUT,PATCH'"
         AllowHeaders: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
-        AllowOrigin: "'https://main.d2mfxusroxua9n.amplifyapp.com'"
-        MaxAge: "'600'"
-        AllowCredentials: true
+        AllowOrigin: "'*'"
+
 
   ExercisesApi:
     Type: AWS::Serverless::Api
@@ -226,9 +220,8 @@ Resources:
       Cors:
           AllowMethods: "'POST,GET,OPTIONS,DELETE,PUT,PATCH'"
           AllowHeaders: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
-          AllowOrigin: "'https://main.d2mfxusroxua9n.amplifyapp.com'"
-          MaxAge: "'600'"
-          AllowCredentials: true
+          AllowOrigin: "'*'"
+
 
   GetAllUsersFunction:
     Type: AWS::Serverless::Function
