@@ -4,7 +4,7 @@ import os
 import boto3
 import pymysql
 from botocore.exceptions import ClientError
-from db_conn import connect_to_db
+from .db_conn import connect_to_db
 
 
 def insert_user_pool(email, username, password, role):

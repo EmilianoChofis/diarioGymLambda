@@ -4,7 +4,7 @@ import logging
 import jwt
 from botocore.exceptions import ClientError
 
-from db_conn import connect_to_db
+from .db_conn import connect_to_db
 
 
 def lambda_handler(event, __):

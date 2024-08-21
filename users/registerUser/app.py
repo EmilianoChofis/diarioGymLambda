@@ -7,8 +7,8 @@ import string
 import boto3
 from botocore.exceptions import ClientError
 
-from queries import user_exists_in_cognito, email_exists_in_cognito, insert_user_pool, insert_user_db
-from validate_token import validate_token, validate_user_role
+from .queries import user_exists_in_cognito, email_exists_in_cognito, insert_user_pool, insert_user_db
+from .validate_token import validate_token, validate_user_role
 
 
 def generate_temporary_password(length=12):
