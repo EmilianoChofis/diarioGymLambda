@@ -36,7 +36,7 @@ def get_user_routines(uid):
     connection = connect_to_db()
     try:
         with connection.cursor() as cursor:
-            sql = "SELECT * FROM routines WHERE user_id = %s"
+            sql = "SELECT * FROM routine WHERE user_id = %s"
             cursor.execute(sql, (uid,))
             result = cursor.fetchall()
 
