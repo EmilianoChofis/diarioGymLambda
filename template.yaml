@@ -55,9 +55,25 @@ Resources:
                   - cognito-idp:AdminListGroupsForUser
                   - cognito-idp:AdminGetUser
                   - cognito-idp:ListUsers
-                  - cognito-idp:AdminInitiateAuth
                   - cognito-idp:AdminAddUserToGroup
                   - cognito-idp:AdminCreateUser
+                  - cognito-idp:AdminInitiateAuth
+                  - cognito-idp:AdminRespondToAuthChallenge
+                  - cognito-idp:AdminSetUserPassword
+                  - cognito-idp:AdminDeleteUser
+                  - cognito-idp:AdminUpdateUserAttributes
+                  - cognito-idp:AdminRemoveUserFromGroup
+                  - cognito-idp:AdminGetUserAttributeVerificationCode
+                  - cognito-idp:AdminConfirmSignUp
+                  - cognito-idp:AdminForgetDevice
+                  - cognito-idp:AdminConfirmDevice
+                  - cognito-idp:AdminUpdateDeviceStatus
+                  - cognito-idp:AdminEnableUser
+                  - cognito-idp:AdminDisableUser
+                  - cognito-idp:AdminResetUserPassword
+                  - cognito-idp:AdminSetUserSettings
+                  - cognito-idp:AdminUpdateAuthEventFeedback
+                  - cognito-idp:AdminUserGlobalSignOut
                 Resource: !GetAtt UserPool.Arn
 
   DatabaseSecurityGroup:
