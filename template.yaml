@@ -159,31 +159,32 @@ Resources:
     Properties:
       Name: UserApi
       StageName: Prod
-      DisableExecuteApiEndpoint: false
       Auth:
         Authorizers:
           CognitoAuthorizer:
             UserPoolArn: !GetAtt UserPool.Arn
       Cors:
-        AllowMethods: "'GET,POST,PUT,DELETE,OPTIONS'"
+        AllowMethods: "'POST,GET,OPTIONS,DELETE,PUT,PATCH'"
         AllowHeaders: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
-        AllowOrigin: "'*'"
+        AllowOrigin: "'https://main.d2mfxusroxua9n.amplifyapp.com'"
+        MaxAge: "'600'"
+        AllowCredentials: true
 
   AuthApi:
     Type: AWS::Serverless::Api
     Properties:
       Name: AuthApi
       StageName: Prod
-      DisableExecuteApiEndpoint: false
       Cors:
-        AllowMethods: "'GET,POST,PUT,DELETE,OPTIONS'"
+        AllowMethods: "'POST,GET,OPTIONS,DELETE,PUT,PATCH'"
         AllowHeaders: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
         AllowOrigin: "'*'"
+        MaxAge: "'600'"
+        AllowCredentials: false
 
   TeamApi:
     Type: AWS::Serverless::Api
     Properties:
-      DisableExecuteApiEndpoint: false
       Name: TeamApi
       StageName: Prod
       Auth:
@@ -191,40 +192,43 @@ Resources:
           CognitoAuthorizer:
             UserPoolArn: !GetAtt UserPool.Arn
       Cors:
-        AllowMethods: "'GET,POST,PUT,DELETE,OPTIONS'"
+        AllowMethods: "'POST,GET,OPTIONS,DELETE,PUT,PATCH'"
         AllowHeaders: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
-        AllowOrigin: "'*'"
+        AllowOrigin: "'https://main.d2mfxusroxua9n.amplifyapp.com'"
+        MaxAge: "'600'"
+        AllowCredentials: true
 
   RoutineApi:
     Type: AWS::Serverless::Api
     Properties:
       Name: RoutineApi
       StageName: Prod
-      DisableExecuteApiEndpoint: false
       Auth:
         Authorizers:
           CognitoAuthorizer:
             UserPoolArn: !GetAtt UserPool.Arn
       Cors:
-        AllowMethods: "'GET,POST,PUT,DELETE,OPTIONS'"
+        AllowMethods: "'POST,GET,OPTIONS,DELETE,PUT,PATCH'"
         AllowHeaders: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
-        AllowOrigin: "'*'"
-
+        AllowOrigin: "'https://main.d2mfxusroxua9n.amplifyapp.com'"
+        MaxAge: "'600'"
+        AllowCredentials: true
 
   ExercisesApi:
     Type: AWS::Serverless::Api
     Properties:
       Name: ExercisesApi
       StageName: Prod
-      DisableExecuteApiEndpoint: false
       Auth:
         Authorizers:
           CognitoAuthorizer:
             UserPoolArn: !GetAtt UserPool.Arn
       Cors:
-        AllowMethods: "'GET,POST,PUT,DELETE,OPTIONS'"
-        AllowHeaders: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
-        AllowOrigin: "'*'"
+          AllowMethods: "'POST,GET,OPTIONS,DELETE,PUT,PATCH'"
+          AllowHeaders: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+          AllowOrigin: "'https://main.d2mfxusroxua9n.amplifyapp.com'"
+          MaxAge: "'600'"
+          AllowCredentials: true
 
   GetAllUsersFunction:
     Type: AWS::Serverless::Function
