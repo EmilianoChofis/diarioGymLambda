@@ -180,10 +180,7 @@ Resources:
     Properties:
       Name: UserApi
       StageName: Prod
-      Auth:
-        Authorizers:
-          CognitoAuthorizer:
-            UserPoolArn: !GetAtt UserPool.Arn
+
 
 
   AuthApi:
