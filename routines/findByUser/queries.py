@@ -1,4 +1,6 @@
 import logging
+from datetime import datetime
+
 import pymysql
 from db_conn import connect_to_db
 
@@ -39,6 +41,11 @@ def get_user_routines(uid):
             sql = "SELECT * FROM routine WHERE user_id = %s"
             cursor.execute(sql, (uid,))
             result = cursor.fetchall()
+
+            # Convertir datetime a string
+            for routine in result:
+                if isinstance(routine['date'], datetime):
+                    routine['date'] = routine['date'].strftime('%Y-%m-%d %H:%M:%S')
 
             return result
     except pymysql.MySQLError as e:
