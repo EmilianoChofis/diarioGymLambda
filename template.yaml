@@ -370,6 +370,10 @@ Resources:
         Variables:
           CLIENT_ID: !GetAtt MyUserPoolClient.ClientId
           POOL_ID: !Ref UserPool
+          DB_HOST: !GetAtt RelationalDatabase.Endpoint.Address
+          DB_NAME: Chomfit
+          SECRET_NAME: !Ref MyDBSecret
+          USER_POOL_ID: !Ref UserPool
 
   RegisterFunction:
     Type: AWS::Serverless::Function
