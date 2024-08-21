@@ -10,6 +10,11 @@ Globals:
     Timeout: 120
     MemorySize: 256
     Runtime: python3.12
+  Api:
+    Cors:
+      AllowOrigin: "'*'"
+      AllowHeaders: "'*'"
+      AllowMethods: "'GET,PUT,POST,PATCH,DELETE,OPTIONS'"
 
 Resources:
   LambdaExecutionRole:
@@ -163,24 +168,14 @@ Resources:
         Authorizers:
           CognitoAuthorizer:
             UserPoolArn: !GetAtt UserPool.Arn
-      Cors:
-        AllowMethods: "'POST,GET,OPTIONS,DELETE,PUT,PATCH'"
-        AllowHeaders: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
-        AllowOrigin: "'https://main.d2mfxusroxua9n.amplifyapp.com'"
-        MaxAge: "'600'"
-        AllowCredentials: true
+
 
   AuthApi:
     Type: AWS::Serverless::Api
     Properties:
       Name: AuthApi
       StageName: Prod
-      Cors:
-        AllowMethods: "'POST,GET,OPTIONS,DELETE,PUT,PATCH'"
-        AllowHeaders: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
-        AllowOrigin: "'*'"
-        MaxAge: "'600'"
-        AllowCredentials: false
+
 
   TeamApi:
     Type: AWS::Serverless::Api
@@ -191,12 +186,7 @@ Resources:
         Authorizers:
           CognitoAuthorizer:
             UserPoolArn: !GetAtt UserPool.Arn
-      Cors:
-        AllowMethods: "'POST,GET,OPTIONS,DELETE,PUT,PATCH'"
-        AllowHeaders: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
-        AllowOrigin: "'https://main.d2mfxusroxua9n.amplifyapp.com'"
-        MaxAge: "'600'"
-        AllowCredentials: true
+
 
   RoutineApi:
     Type: AWS::Serverless::Api
@@ -207,12 +197,6 @@ Resources:
         Authorizers:
           CognitoAuthorizer:
             UserPoolArn: !GetAtt UserPool.Arn
-      Cors:
-        AllowMethods: "'POST,GET,OPTIONS,DELETE,PUT,PATCH'"
-        AllowHeaders: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
-        AllowOrigin: "'https://main.d2mfxusroxua9n.amplifyapp.com'"
-        MaxAge: "'600'"
-        AllowCredentials: true
 
   ExercisesApi:
     Type: AWS::Serverless::Api
@@ -223,12 +207,7 @@ Resources:
         Authorizers:
           CognitoAuthorizer:
             UserPoolArn: !GetAtt UserPool.Arn
-      Cors:
-          AllowMethods: "'POST,GET,OPTIONS,DELETE,PUT,PATCH'"
-          AllowHeaders: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
-          AllowOrigin: "'https://main.d2mfxusroxua9n.amplifyapp.com'"
-          MaxAge: "'600'"
-          AllowCredentials: true
+
 
   GetAllUsersFunction:
     Type: AWS::Serverless::Function
